@@ -27,6 +27,6 @@ routes.py - These are various functions based in Flask to handle various page ro
 
 config.py - This is the initial setup before the server goes live. Once run.py is executed, this code will run before the server is live.
 
-__init__.py - This is the initialization code that creates our Flask app and will import anythink into the app as needed
+\__init__.py - This is the initialization code that creates our Flask app and will import anythink into the app as needed
 
 run.py - This is the file that you will execute in the terminal to run the app. 'use_reloader=False' ensures that the page will not be reloaded as code is changed. This setting was placed due to issues in the app restarting and then freezing potentially due to changing variables in code
