@@ -12,6 +12,8 @@ Once you are sure that pip is installed, type: pip install Flask
 
 This will allow you to install the Flask web framework used by the application
 
+__IMPORTANT: Ensure that when you are working on this project, ensure that you are actively working on a new branch or at least working with local files to ensure that we do not run into problems with the working copy of our site. This will require knowledge on how to use GitHub pull, push, and merge features depending on the method you choose to use GitHub functions (terminal, GitHub desktop, GitHub in Visual Studio, and any other way you may access it)__
+
 -----------Broad explanation of the code-----------
 
 Currently all the code will do is generate a SECRET_KEY on the initialization of the server for future use. It is printed
