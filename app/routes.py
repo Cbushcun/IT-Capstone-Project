@@ -1,10 +1,11 @@
 from flask import render_template, logging
 from app import app
+from config import *
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
+    
 @app.route('/<path:page_direction>')
 def dynamic_page(page_direction):
     # 'page_direction' will contain the input from the URL
