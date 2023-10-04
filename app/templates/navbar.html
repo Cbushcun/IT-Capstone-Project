@@ -1,0 +1,25 @@
+<div class="navbar">
+    <div class="dropdown">
+        <button class="dropbtn">
+            {{ active_page }}
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('auction_page') }}">Browse Auctions</a>
+            <a href="{{ url_for('about') }}">About Us</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+
+    </div>
+    <div class="login-register">
+        {% if current_user %}
+        <span>Welcome, {{ current_user }}!</span>
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        {% endif %}
+    </div>
+</div>
+
+

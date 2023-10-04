@@ -1,8 +1,21 @@
 import os # Import os module to use environment variables
 import secrets # Import secrets module to generate secure SECRET_KEY
 import platform  # Import the platform module to determine the OS
+import logging
 
+ # Logging setup
 SECRET_KEY_FILE = 'secret_key.txt'
+LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_FILE = 'error_log.log'
+
+# Set up a file handler for error logs
+file_handler = logging.FileHandler(LOG_FILE)
+file_handler.setLevel(logging.ERROR)
+file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
+
+# Get the root logger and add the file handler to it
+logger = logging.getLogger()
+logger.addHandler(file_handler)
 
 def load_or_create_secret_key():
     clear_screen();
@@ -39,3 +52,12 @@ def clear_screen():
         os.system('cls' if os.name == 'nt' else 'clear')  # Try 'cls' and 'clear' for console clearing
     else:
         os.system('clear') # Use 'clear' for Unix-like systems
+    
+
+#def get_current_user():
+#    # This is just a placeholder. You need to implement this function based on your authentication system.
+#    # For example, you might check if there's a user ID stored in the session and fetch the user from the database.
+#    if 'user_id' in session:
+#        user = fetch_user_from_database(session['user_id'])  # You need to implement fetch_user_from_database()
+#        return user.name if user else None
+#    return None
