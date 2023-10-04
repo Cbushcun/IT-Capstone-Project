@@ -5,7 +5,7 @@ import logging
 
  # Logging setup
 SECRET_KEY_FILE = 'secret_key.txt'
-LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 LOG_FILE = 'error_log.log'
 
 # Set up a file handler for error logs
@@ -17,6 +17,12 @@ file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
 logger = logging.getLogger()
 logger.addHandler(file_handler)
 
+def log_server_start_stop(action):
+    if action == 'start':
+        logger.error('-----------Server Started-----------')
+    elif action == 'stop':
+        logger.error('-----------Server Stopped-----------')
+     
 def load_or_create_secret_key():
     clear_screen();
     try:

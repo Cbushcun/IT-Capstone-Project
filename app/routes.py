@@ -1,9 +1,8 @@
-from flask import request, render_template
-from jinja2 import TemplateNotFound
+from flask import Flask, request, render_template
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, InternalServerError, MethodNotAllowed
+from jinja2 import TemplateNotFound
 from app import app
 from config import *
-import logging
 from datetime import datetime
 
 #Routes to handle page navigation
@@ -37,26 +36,27 @@ def contact():
 # Routes to handle error handling
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
-    logging.error(f"Bad Request Error: {e.description} - Route: {request.path} - IP: {request.remote_addr}")
-    return render_template('400.html', error=e.description), 400
+    logger.error(f"IP: {request.remote_addr} - Bad Request Error - Route: {request.path}")
+    return render_template('400.html', error=e), 400
 
 @app.errorhandler(Forbidden)
 def handle_forbidden(e):
-    logging.warning(f"Forbidden Error: {e.description} - Route: {request.path} - IP: {request.remote_addr}")
-    return render_template('403.html', error=e.description), 403
+    logger.error(f"IP: {request.remote_addr} - Forbidden Error - Route: {request.path}")
+    return render_template('403.html', error=e), 403
 
 @app.errorhandler(NotFound)
+@app.errorhandler(TemplateNotFound)
 def handle_not_found(e):
-    logging.info(f"Not Found Error: {e.description} - Route: {request.path} - IP: {request.remote_addr}")
-    return render_template('404.html', error=e.description), 404
+    logger.error(f"IP: {request.remote_addr} - Not Found Error - Route: {request.path}")
+    return render_template('404.html', error=e), 404
 
 @app.errorhandler(MethodNotAllowed)
 def handle_method_not_allowed(e):
-    logging.warning(f"Method Not Allowed Error: {e.description} - Route: {request.path} - IP: {request.remote_addr}")
-    return render_template('405.html', error=e.description), 405
+    logger.error(f"IP: {request.remote_addr} - Method Not Allowed Error - Route: {request.path}")
+    return render_template('405.html', error=e), 405
 
 @app.errorhandler(InternalServerError)
 def handle_internal_server_error(e):
-    logging.critical(f"Internal Server Error: {e.description} - Route: {request.path} - IP: {request.remote_addr}")
-    return render_template('500.html', error=e.description), 500
+    logger.error(f"IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+    return render_template('500.html', error=e), 500
 
