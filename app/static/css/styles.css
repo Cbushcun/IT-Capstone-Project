@@ -133,6 +133,9 @@ box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 z-index: 1;
 }
 
+.dropdown-login-content {
+    right: 0;
+}
 .dropdown-content a {
     float: none;
     color: white;
