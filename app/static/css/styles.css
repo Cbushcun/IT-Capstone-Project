@@ -41,6 +41,13 @@ input[type="text"], input[type="password"], input[type="email"] {
     box-sizing: border-box;
 }
 
+.password-requirements {
+    display: none;
+    font-size: 14px;
+    color: #d45d67;
+    margin-top: 5px;
+}
+
 input[type="submit"] {
     background-color: #e74c3c;
     color: #ecf0f1;
@@ -73,7 +80,6 @@ footer {
 }
 
 /* Navbar styling */
-
 .login-register {
     float: right;
 }
