@@ -1,7 +1,8 @@
+from collections import namedtuple
 import os # Import os module to use environment variables
 import secrets # Import secrets module to generate secure SECRET_KEY
 import platform  # Import the platform module to determine the OS
-from flask import redirect, url_for, request, render_template
+from flask import redirect, url_for, request, render_template, session
 from db_setup import *
 import logging
 import sqlite3
@@ -30,7 +31,11 @@ def log_server_start_stop(action):
         logger.error('-----------Server Started-----------')
     elif action == 'stop':
         logger.error('-----------Server Stopped-----------')
-     
+
+def log_data(): 
+    logger.error(f"User: " + get_current_user() + " IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+    pass
+
 def load_or_create_secret_key():
     clear_screen();
     try:
@@ -157,6 +162,7 @@ def login_user():
         if hashed_password == salt + hashed_password_input:
             print("Passwords match, session created and stored") #For Debugging
             # Passwords match; create a session and store it in the Sessions table
+            session['user_id'] = user_id
             session_id = str(uuid.uuid4())
             expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
             conn = sqlite3.connect("auction_website.db")
@@ -165,13 +171,92 @@ def login_user():
                            (session_id, user_id, expiration))        
             conn.commit()
             conn.close()
-            print("Passwords match, session created and stored, redirection to 'None', should be index") #For Debugging
+            print("Passwords match, session created and stored, returning 'None', should be index") #For Debugging
 
             # Redirect to the main application interface
             return None
     error = "Invalid email or password"
     print("Error, returning:", error) #For Debugging
     return error
+
+def logout_user():
+    """Logs out a user, destroys the session, and removes it from the database."""
+    conn = None  # Initialize conn to None
+    try:
+        # Extract session_id from the current session
+        session_id = str(session['session_id']) if 'session_id' in session else None
+        user_id = str(session['user_id']) if 'user_id' in session else None
+
+        # Validate session_id and user_id exist
+        if not session_id or not user_id:
+            raise ValueError("Invalid session data")
+
+        # Connect to the database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Delete session data from Sessions table in the database
+        cursor.execute("DELETE FROM Sessions WHERE session_id = ? AND user_id = ?", (session_id, user_id))
+        conn.commit()
+
+        # Clear the user_id and any other data from the Flask session
+        session.clear()
+
+        # Optionally, log the user's logout activity
+        log_data()  # Assuming log_data function logs user activities including logout
+
+        # Redirect to the login page or the home page after logout
+        return redirect(url_for('login'))  # Replace 'login' with the endpoint for your login page
+
+    except ValueError as ve:
+        # Handle invalid session data error
+        print(f"Error: {ve}")
+        return redirect(url_for('login'))  # Redirect to login on error
+
+    except sqlite3.Error as e:
+        # Handle database error
+        print(f"Database error: {e}")
+        return redirect(url_for('login'))  # Redirect to login on error
+
+    finally:
+        # Ensure the database connection is closed
+        if conn:  # Check if conn is not None before trying to close it
+            conn.close()
+            
+def get_username_by_user_id(user_id):
+    try:
+        # Establish a connection to the SQLite database
+        conn = sqlite3.connect("your_database.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to fetch the username based on user_id
+        cursor.execute("SELECT username FROM Users WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+
+        if result:
+            # If a matching user is found, return their username
+            return result[0]
+
+        # If no user with the given user_id is found, return None
+        return None
+
+    except sqlite3.Error as e:
+        # Handle any potential database errors here
+        print(f"Database error: {e}")
+        return None
+
+    finally:
+        # Close the database connection when done
+        conn.close()
+
+    # Example usage:
+    #user_id = 1  # Replace with the actual user_id of the current user
+    #username = get_username_by_user_id(user_id)
+
+    if username is not None:
+        print(f"Username for user with user_id {user_id}: {username}")
+    else:
+        print("User not found or database error.")
 
 def create_auction():
     """Creates a new auction listing in the database."""
@@ -190,10 +275,30 @@ def create_auction():
     conn.close()
 
 
-#def get_current_user():
-#    # This is just a placeholder. You need to implement this function based on your authentication system.
-#    # For example, you might check if there's a user ID stored in the session and fetch the user from the database.
-#    if 'user_id' in session:
-#        user = fetch_user_from_database(session['user_id'])  # You need to implement fetch_user_from_database()
-#        return user.name if user else None
-#    return None
+def get_current_user():
+    if 'user_id' in session:
+        user = fetch_user_from_database(session['user_id'])  
+        return user.username if user else None
+    return None
+
+def fetch_user_from_database(user_id):
+    """
+    Fetch a user from the database using the user_id.
+
+    :param user_id: The ID of the user to fetch
+    :return: A user object or None if no user is found
+    """
+    conn = sqlite3.connect('auction_website.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Users WHERE user_id = ?", (user_id,))
+    user_data = cursor.fetchone()
+    conn.close()
+
+    if user_data:
+        # You might want to map the user_data to a User object or dictionary here
+        # This is just a simple example, you need to replace this with your actual User class or data structure
+        User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
+        user = User(*user_data)
+        return user
+    else:
+        return None

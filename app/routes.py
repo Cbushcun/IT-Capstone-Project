@@ -7,13 +7,21 @@ from config import *
 #Routes to handle page navigation
 @app.route('/')
 def index():
-    #current_user = get_current_user()  # You need to implement get_current_user()
-    return render_template('index.html', active_page='Home', previous_url=request.referrer, #current_user=current_user
-                           )
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('index.html', active_page='Home', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('index.html', active_page='Home', previous_url=request.referrer)
+    
 
 @app.route('/auction_page')
 def auction_page():
-    return render_template('auction_page.html', previous_url=request.referrer, active_page='Auction Listings')
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('auction_page.html', active_page='Auction Listings', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('auction_page.html', previous_url=request.referrer, active_page='Auction Listings')
+    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -33,6 +41,10 @@ def login():
     # Clear any existing flashed messages
     get_flashed_messages(category_filter=["error"]) 
     return render_template('login.html', previous_url=request.referrer, active_page='Login', error=message)
+
+@app.route('/logout')
+def logout():
+    return logout_user()
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -63,38 +75,47 @@ def register():
 
 @app.route('/about_us')
 def about():
-    return render_template('about_us.html', previous_url=request.referrer, active_page='About Us')
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('about_us.html', active_page='About Us', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('about_us.html', previous_url=request.referrer, active_page='About Us')
+    
 
 @app.route('/contact_us')
 def contact():
-    return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('contact_us.html', active_page='Contact Us', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
 
 
 # Routes to handle error handling
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
-    logger.error(f"IP: {request.remote_addr} - Bad Request Error - Route: {request.path}")
+    log_data()
     return render_template('400.html', error=e), 400
 
 @app.errorhandler(Forbidden)
 def handle_forbidden(e):
-    logger.error(f"IP: {request.remote_addr} - Forbidden Error - Route: {request.path}")
+    log_data()
     return render_template('403.html', error=e), 403
 
 @app.errorhandler(NotFound)
 @app.errorhandler(TemplateNotFound)
 def handle_not_found(e):
-    logger.error(f"IP: {request.remote_addr} - Not Found Error - Route: {request.path}")
+    log_data()
     return render_template('404.html', error=e), 404
 
 @app.errorhandler(MethodNotAllowed)
 def handle_method_not_allowed(e):
-    logger.error(f"IP: {request.remote_addr} - Method Not Allowed Error - Route: {request.path}")
+    log_data()
     return render_template('405.html', error=e), 405
 
 @app.errorhandler(InternalServerError)
 def handle_internal_server_error(e):
-    logger.error(f"IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+    log_data()
     return render_template('500.html', error=e), 500
 
 @app.errorhandler(Exception)

@@ -15,7 +15,21 @@
     {% if active_page != 'Login' and active_page != 'Register' %}
     <div class="login-register">
         {% if current_user %}
-        <span>Welcome, {{ current_user }}!</span>
+        <div class="dropdown">
+            <button class="dropbtn">
+                <span>Welcome, {{ current_user }}!</span>
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content dropdown-login-content">
+                <a href="#">Profile</a>
+                <a href="#">Bidding & Purchases</a>
+                <a href="#">Selling & Listing</a>
+                <a href="#">Help & Support</a>
+                <a href="#">Settings</a>
+                <a href="{{ url_for('logout') }}">Sign Out</a>
+            </div>
+
+        </div>
         {% else %}
         <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('register') }}">Register</a>
