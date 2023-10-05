@@ -13,10 +13,6 @@
         <form method="POST" action="">
             <h2>Login</h2>
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="text" id="email" name="email" required>
             </div>
@@ -28,9 +24,17 @@
                 <input type="submit" value="Login">
             </div>
             <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
-            {% if registered %}
-            <p style="color: green;">{{ registered }}</p>
-            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'success' %}
+                        <p style="color: #63d45d;">{{ message }}</p>
+                        {% elif category == 'error' %}
+                        <p class="alert">{{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         </form>
     </div>
 </body>
