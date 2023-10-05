@@ -118,12 +118,15 @@ def register_user():
         
         # Generate a random salt and hash the password
         salt = generate_salt()
-        hashed_password = hash_password(password, salt)
+        print('Salt generated', salt) #Debugging
+        hashed_password = salt + hash_password(password, salt)
+        print('hashed password', hashed_password) #Debugging
 
         # Insert user data into the Users table
         cursor.execute("INSERT INTO Users (username, email, password, first_name, last_name, address, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?)",
                        (username, email, hashed_password, first_name, last_name, address, phone_number))
-        # Get user input
+           
+        print('hashed_password stored') #Debugging
 
         conn.commit()
         conn.close()
@@ -131,32 +134,44 @@ def register_user():
 
 def login_user():
     """Logs in a user and creates a session."""
-    username = login_username_entry.get()
-    password = login_password_entry.get()
-
-    # Check if the username and password match a user in the Users table
+    email = request.form['email']
+    password = request.form['password']
+    print("Password and email stored for comparison") #For Debugging
+    
+    # Check if the email and password match a user in the Users table
     conn = sqlite3.connect("auction_website.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id, password FROM Users WHERE username = ?", (username,))
+    cursor.execute("SELECT user_id, password FROM Users WHERE email = ?", (email,))
     user_data = cursor.fetchone()
     conn.close()
-
+    print("User Data Extracted") #For Debugging
+    
     if user_data:
         user_id, hashed_password = user_data
-        salt = hashed_password[:64]  # Extract the salt from the hashed password
-        if hashed_password == hash_password(password, salt):
+        print("User Data accessed", user_id, hashed_password) #For Debugging
+        salt = hashed_password[:32]  # Extract the salt from the hashed password
+        print("Salt Extracted", salt) #For Debugging
+        hashed_password_input = hash_password(password, salt)
+        print("Input password hashed with salt from stored password", hashed_password_input) #For Debugging
+        
+        if hashed_password == salt + hashed_password_input:
+            print("Passwords match, session created and stored") #For Debugging
             # Passwords match; create a session and store it in the Sessions table
             session_id = str(uuid.uuid4())
             expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
             conn = sqlite3.connect("auction_website.db")
             cursor = conn.cursor()
             cursor.execute("INSERT INTO Sessions (session_id, user_id, expiration) VALUES (?, ?, ?)",
-                           (session_id, user_id, expiration))
+                           (session_id, user_id, expiration))        
             conn.commit()
             conn.close()
+            print("Passwords match, session created and stored, redirection to 'None', should be index") #For Debugging
 
-            # Redirect to the main application interface (you can implement this)
-            show_auction_interface()
+            # Redirect to the main application interface
+            return None
+    error = "Invalid email or password"
+    print("Error, returning:", error) #For Debugging
+    return error
 
 def create_auction():
     """Creates a new auction listing in the database."""
