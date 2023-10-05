@@ -12,6 +12,7 @@
         </div>
 
     </div>
+    {% if active_page != 'Login' and active_page != 'Register' %}
     <div class="login-register">
         {% if current_user %}
         <span>Welcome, {{ current_user }}!</span>
@@ -20,6 +21,7 @@
         <a href="{{ url_for('register') }}">Register</a>
         {% endif %}
     </div>
+    {% endif %}
 </div>
 
 

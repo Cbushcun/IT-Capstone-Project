@@ -8,6 +8,7 @@ import sqlite3
 import hashlib
 import uuid
 import datetime
+import re
 
 # Logging setup
 SECRET_KEY_FILE = 'secret_key.txt'
@@ -82,6 +83,7 @@ def register_user():
     """Registers a new user in the database."""
     error = None
     if request.method == 'POST':
+        email_regex = r'^[\w\.-]+@[\w\.-]+(\.\w+)+$'
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
@@ -94,13 +96,17 @@ def register_user():
         conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
         
+        if not re.match(email_regex, email):
+            error = "Invalid email address" #Does not validate if it is a live email, only verifies formatting
+            return error
+        
         # Check if username already exists (case-insensitive)
         cursor.execute("SELECT * FROM Users WHERE LOWER(username) = LOWER(?)", (username,))
         if cursor.fetchone():
             conn.close()
             # Handle the case where the username already exists
             error = "Username or Email already exists"
-            return error  # HTTP status code 400 represents a bad request
+            return error
 
         # Check if email already exists (case-insensitive)
         cursor.execute("SELECT * FROM Users WHERE LOWER(email) = LOWER(?)", (email,))
@@ -108,7 +114,7 @@ def register_user():
             conn.close()
             # Handle the case where the email already exists
             error = "Username or Email already exists"
-            return error  # HTTP status code 400 represents a bad request
+            return error
         
         # Generate a random salt and hash the password
         salt = generate_salt()
