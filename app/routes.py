@@ -3,7 +3,6 @@ from werkzeug.exceptions import BadRequest, Forbidden, NotFound, InternalServerE
 from jinja2 import TemplateNotFound
 from app import app
 from config import *
-from datetime import datetime
 
 #Routes to handle page navigation
 @app.route('/')
@@ -18,11 +17,26 @@ def auction_page():
 
 @app.route('/login')
 def login():
+    registered = None
     return render_template('login.html', previous_url=request.referrer, active_page='Login')
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html', previous_url=request.referrer, active_page='Register')  
+    error = None # Initialize error as None
+    if request.method == 'POST':        
+        password = request.form.get('password')
+        verify_password = request.form.get('verify_password')
+        
+        #Confirm that passwords match
+        if password != verify_password:
+            error = "Passwords do not match"
+        else:
+            error = register_user()
+
+        if not error:
+            registered = 'Registration Success!'
+            return render_template('login.html', registered=registered)
+    return render_template('register.html', previous_url=request.referrer, active_page='Register', error=error)
 
 @app.route('/about_us')
 def about():
@@ -59,4 +73,9 @@ def handle_method_not_allowed(e):
 def handle_internal_server_error(e):
     logger.error(f"IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
     return render_template('500.html', error=e), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Pass the error to handle_exception
+    return render_template('error.html', error=str(e)), 500
 

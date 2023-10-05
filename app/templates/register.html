@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
     <title>Register</title>
 </head>
 <body>
     {% include 'navbar.html' %}
     <div class="form-container">
-        <form method="POST" action="">
+        <form method="POST" action="" onsubmit="return validatePassword();">
             <h2>Register</h2>
             <div class="form-group">
                 <label for="username">Username:</label>
@@ -31,6 +32,9 @@
                 <input type="submit" value="Register">
             </div>
             <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+            {% if error %}
+            <p class="alert">{{ error }}</p>
+            {% endif %}
         </form>
     </div>
 </body>
