@@ -1,0 +1,7 @@
+#Add any requirements for the project here for ease of setup 
+#These requirements can be easily added via: pip install -r requirements.txt
+#You can also specify version by adding package==0.0.0 | package>=0.0.0 | or package>=0.0.0,<=0.0.0 to add a range of versions
+
+Flask  # Use the version number appropriate for your project
+Werkzeug  # Included with Flask, but listed for completeness
+Jinja2  # Included with Flask, but listed for completeness

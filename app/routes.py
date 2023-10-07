@@ -7,11 +7,7 @@ from config import *
 #Routes to handle page navigation
 @app.route('/')
 def index():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('index.html', active_page='Home', previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template('index.html', active_page='Home', previous_url=request.referrer)
+    return routes_render_template('index.html', 'Home')
     
 
 @app.route('/auction_page')
