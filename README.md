@@ -8,7 +8,7 @@ Once python is downloaded, ensure that you have pip installed. You can check thi
 
 If this is not installed, you will need to go and install it before proceeding.
 
-Once you are sure that pip is installed, type: pip install Flask
+Once you are sure that pip is installed navigate to the directory you have stored the files in and then type: pip install -r requirements.txt
 
 This will allow you to install the Flask web framework used by the application
 
