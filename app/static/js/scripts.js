@@ -10,25 +10,25 @@ jqueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
 document.head.appendChild(jqueryScript);
 // JavaScript code goes here
 function validatePassword() {
-    console.log("validatePassword function called"); // For debugging
+    console.log("DEBUG: validatePassword function called"); // For debugging
     var password = document.getElementById("password");
     var verify_password = document.getElementById("verify_password");
 
     var passwordPattern = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
     if (!passwordPattern.test(password.value)) {
-        console.log("Password does not meet the criteria"); // For debugging
+        console.log("DEBUG: Password does not meet the criteria"); // For debugging
         alert("Password must meet the criteria.");
         return false;
     }
 
     if (password.value !== verify_password.value) {
-        console.log("Passwords do not match"); // For debugging
+        console.log("DEBUG: Passwords do not match"); // For debugging
         alert("Passwords do not match");
         return false;
     }
 
-    console.log("Password meets the criteria and passwords match"); // For debugging
+    console.log("DEBUG: Password meets the criteria and passwords match"); // For debugging
     return true;
 }
 

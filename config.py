@@ -32,8 +32,13 @@ def log_server_start_stop(action):
     elif action == 'stop':
         logger.error('-----------Server Stopped-----------')
 
+# Log error data to error_log.log, edit function to log user login/logout without passing as "error"
 def log_data(): 
-    logger.error(f"User: " + get_current_user() + " IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+    current_user = get_current_user()
+    if current_user:
+        logger.error(f"User: " + get_current_user() + " IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+    else:
+        logger.error(f"IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
     pass
 
 def load_or_create_secret_key():
@@ -141,7 +146,7 @@ def login_user():
     """Logs in a user and creates a session."""
     email = request.form['email']
     password = request.form['password']
-    print("Password and email stored for comparison") #For Debugging
+    print("DEBUG: Password and email stored for comparison") #For Debugging
     
     # Check if the email and password match a user in the Users table
     conn = sqlite3.connect("auction_website.db")
@@ -149,21 +154,21 @@ def login_user():
     cursor.execute("SELECT user_id, password FROM Users WHERE email = ?", (email,))
     user_data = cursor.fetchone()
     conn.close()
-    print("User Data Extracted") #For Debugging
+    print("DEBUG: User Data Extracted") #For Debugging
     
     if user_data:
         user_id, hashed_password = user_data
-        print("User Data accessed", user_id, hashed_password) #For Debugging
+        print("DEBUG: User Data accessed", user_id, hashed_password) #For Debugging
         salt = hashed_password[:32]  # Extract the salt from the hashed password
-        print("Salt Extracted", salt) #For Debugging
+        print("DEBUG: Salt Extracted", salt) #For Debugging
         hashed_password_input = hash_password(password, salt)
-        print("Input password hashed with salt from stored password", hashed_password_input) #For Debugging
+        print("DEBUG: Input password hashed with salt from stored password", hashed_password_input) #For Debugging
         
         if hashed_password == salt + hashed_password_input:
-            print("Passwords match, session created and stored") #For Debugging
+            print("DEBUG: Passwords match, session created and stored") #For Debugging
             # Passwords match; create a session and store it in the Sessions table
             session['user_id'] = user_id
-            session_id = str(uuid.uuid4())
+            session['session_id'] = session_id = str(uuid.uuid4())
             expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
             conn = sqlite3.connect("auction_website.db")
             cursor = conn.cursor()
@@ -171,41 +176,50 @@ def login_user():
                            (session_id, user_id, expiration))        
             conn.commit()
             conn.close()
-            print("Passwords match, session created and stored, returning 'None', should be index") #For Debugging
+            print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging
 
             # Redirect to the main application interface
             return None
     error = "Invalid email or password"
-    print("Error, returning:", error) #For Debugging
+    print("DEBUG: Error, returning:", error) #For Debugging
     return error
 
 def logout_user():
     """Logs out a user, destroys the session, and removes it from the database."""
+    print("DEBUG: logout_user() called") #For Debugging
     conn = None  # Initialize conn to None
+    print("DEBUG: conn initialized to None") #For Debugging
     try:
         # Extract session_id from the current session
         session_id = str(session['session_id']) if 'session_id' in session else None
         user_id = str(session['user_id']) if 'user_id' in session else None
-
+        print("DEBUG: session_id and user_id extracted from session") #For Debugging
+        
         # Validate session_id and user_id exist
         if not session_id or not user_id:
+            print("DEBUG: No session_id or user_id") #For Debugging
             raise ValueError("Invalid session data")
 
         # Connect to the database
         conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
+        print("DEBUG: Connected to database file") #For Debugging
 
         # Delete session data from Sessions table in the database
         cursor.execute("DELETE FROM Sessions WHERE session_id = ? AND user_id = ?", (session_id, user_id))
         conn.commit()
+        print("DEBUG: Deleted session from Sessions table expected") #For Debugging
 
         # Clear the user_id and any other data from the Flask session
         session.clear()
+        print("DEBUG: Session cleared from Flask session") #For Debugging
 
         # Optionally, log the user's logout activity
-        log_data()  # Assuming log_data function logs user activities including logout
+        #log_data()  # Assuming log_data function logs user activities including logout
+        print("DEBUG: Data Logged") #For Debugging
 
         # Redirect to the login page or the home page after logout
+        print("DEBUG: Redirecting to login") #For Debugging
         return redirect(url_for('login'))  # Replace 'login' with the endpoint for your login page
 
     except ValueError as ve:
@@ -302,3 +316,14 @@ def fetch_user_from_database(user_id):
         return user
     else:
         return None
+    
+# Function for rendering templates to remove redundant code in routes.py
+def routes_render_template(template_html, active_page):
+    current_user = get_current_user()
+    if not template_html:
+        template_html = None
+        
+    if current_user:      
+        return render_template(template_html, active_page=active_page, previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template(template_html, previous_url=request.referrer, active_page=active_page)

@@ -16,27 +16,23 @@ def index():
 
 @app.route('/auction_page')
 def auction_page():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('auction_page.html', active_page='Auction Listings', previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template('auction_page.html', previous_url=request.referrer, active_page='Auction Listings')
+    return routes_render_template('auction_page.html', 'Auctions Page')
     
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     message = None
-    print("message initialized to None, should render login.html") #For Debugging
+    print("DEBUG: Message initialized to None, should render login.html") #For Debugging
     if request.method == 'POST':
-        print("Post method called") #For Debugging
+        print("DEBUG: Post method called") #For Debugging
         result = login_user()
-        print("Login_user() called and stored to result") #For Debugging
+        print("DEBUG: login_user() called and stored to result") #For Debugging
         
         if result is None: 
-            print("Result is 'None', redirection to index") #For Debugging
+            print("DEBUG: Result is 'None', redirection to index") #For Debugging
             return redirect(url_for('index'))          
         else:
-            print("result is other than None, flashing error result from Login_user()") #For Debugging
+            print("DEBUG: Result is other than None, flashing error result from Login_user()") #For Debugging
             flash(result, "error")
     # Clear any existing flashed messages
     get_flashed_messages(category_filter=["error"]) 
@@ -49,46 +45,38 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None # Initialize error as None
-    print("error = None initialized") #For Debugging
+    print("DEBUG: error = None initialized") #For Debugging
     if request.method == 'POST': 
-        print("POST method called") #For Debugging
+        print("DEBUG: POST method called") #For Debugging
         password = request.form.get('password')
-        print("Password stored") #For Debugging
+        print("DEBUG: Password stored") #For Debugging
         verify_password = request.form.get('verify_password')
-        print("Confirmation password stored") #For Debugging
+        print("DEBUG: Confirmation password stored") #For Debugging
         
         #Confirm that passwords match
         if password != verify_password:
             flash("Passwords do no t match", "error")
-            print("Password mismatch") #For Debugging
+            print("DEBUG: Password mismatch") #For Debugging
         else:
             error = register_user()
-            print("Passwords match, storing user") #For Debugging
+            print("DEBUG: Passwords match, storing user") #For Debugging
 
             if error:
                 flash(error, "error")
             else:             
                 flash('Registration Success!', 'success')
-                print("Registration success flashed") #For Debugging      
+                print("DEBUG: Registration success flashed") #For Debugging      
                 return redirect(url_for('login', active_page='Login'))
     return render_template('register.html', previous_url=request.referrer, active_page='Register', error=error)
 
 @app.route('/about_us')
 def about():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('about_us.html', active_page='About Us', previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template('about_us.html', previous_url=request.referrer, active_page='About Us')
+    return routes_render_template('about_us.html', 'About Us')
     
 
 @app.route('/contact_us')
 def contact():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('contact_us.html', active_page='Contact Us', previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
+    return routes_render_template('contact_us.html', 'Contact Us')
 
 
 # Routes to handle error handling
