@@ -16,6 +16,10 @@ This is a general purpose .txt file to list any TODOs for the group. Anything li
 
 - Ensure that current code is commented, secured, and organized before continuing on with project to prevent future hiccups or slowdown due to clutter
 
+- Look into session retreival and storage through cookies so users can stay logged in when exiting browser or force a logout on browser exit.
+
+- Add a 'Remember me' checkbox to handle long term session storage so users are not logged out excessively
+
 --------COMPLETE--------
 
 ---Christian---
