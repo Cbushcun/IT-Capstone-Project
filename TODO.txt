@@ -1,0 +1,23 @@
+This is a general purpose .txt file to list any TODOs for the group. Anything listed in here should be worked on. Anything that has been worked on and completed, please move it under '--------COMPLETE--------' to indicate that it is worked on and implemented. If something has been completed but needs to be revisited, clearly display the problems under the task and move it to 'TODO'. This will help keep track of what has been done and what will need to be done as well as any issues that need to be revisited and fixed.
+
+--------SECURITY--------
+
+- Constant testing of webapp to ensure that it is secure once features are added. List any issues that need to be looked at under TODO.
+
+--------TODO--------
+
+---Added by Christian---
+
+- Handle SECURITY_KEY storage to ensure more secure handling of said key (environment variables?)
+
+- GPT-4 has reccomended SQLAlchemy on few occations further secure the database and prevent attacks such as SQL Injection and enables options to use secure database connections.
+
+- Ensure that session handling works properly. Work on implementing sesssion deletion from the database if the current date/time is later than the stored expiry date for the session.
+
+- Ensure that current code is commented, secured, and organized before continuing on with project to prevent future hiccups or slowdown due to clutter
+
+--------COMPLETE--------
+
+---Christian---
+
+- Created a login and register page to handle user input and verification (through javascript and Flask) preventing users from registering without matching passwords, without a valid email, or with a username that is already registered. Same concepts applied to login to prevent logging in without verifying user as well as added persistent "Welcome, {user}" to navbar.html
