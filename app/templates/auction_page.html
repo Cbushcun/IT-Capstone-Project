@@ -1,16 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
     <title>Auction Page</title>
+    <style>
+        .form-container {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
     {% include 'navbar.html' %}
-    <h1>Welcome to the Auction Page!</h1>
-    <p>Content for auction page here.</p>
+    <div class="form-container">
+        <h2>Available Auctions</h2>
+        {% for auction in auctions %}
+        <a href="{{ url_for('item_page', item_id=auction.auction_id) }}" style="text-decoration: none; color: inherit;">
+            <div class="auction-listing">
+                <label>Seller: {{ auction.seller_name }}</label>
+                <p>Item Title: {{ auction.item_title }}</p>
+                <p>Auction Ends: {{ auction.end_time }}</p>
+                <p>Buy Now Price: ${{ auction.buy_now_price }}</p>
+            </div>
+        </a>
+            {% endfor %}
+    </div>
+
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
 </body>
-{% include 'footer.html' %}
+
 </html>

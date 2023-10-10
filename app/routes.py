@@ -7,12 +7,26 @@ from config import *
 #Routes to handle page navigation
 @app.route('/')
 def index():
-    return routes_render_template('index.html', 'Home')
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('index.html', active_page='Home', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('index.html', previous_url=request.referrer, active_page='Home')
     
 
 @app.route('/auction_page')
 def auction_page():
-    return routes_render_template('auction_page.html', 'Auctions Page')
+    current_user = get_current_user()
+    auctions = [
+        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15 12:00:00', 'buy_now_price': 50.00},
+        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18 15:30:00', 'buy_now_price': 120.00},
+        # Add more filler data as needed
+    ]
+    if current_user:  
+        
+        return render_template('auction_page.html', active_page='Auctions', previous_url=request.referrer, current_user=current_user, auctions=auctions)
+    else :
+        return render_template('auction_page.html', previous_url=request.referrer, active_page='Auctions', auctions=auctions)
     
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -67,12 +81,20 @@ def register():
 
 @app.route('/about_us')
 def about():
-    return routes_render_template('about_us.html', 'About Us')
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('about_us.html', active_page='About Us', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('about_us.html', previous_url=request.referrer, active_page='About Us')
     
 
 @app.route('/contact_us')
 def contact():
-    return routes_render_template('contact_us.html', 'Contact Us')
+    current_user = get_current_user()
+    if current_user:      
+        return render_template('contact_us.html', active_page='Contact Us', previous_url=request.referrer, current_user=current_user)
+    else :
+        return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
 
 
 # Routes to handle error handling
@@ -107,3 +129,37 @@ def handle_exception(e):
     # Pass the error to handle_exception
     return render_template('error.html', error=str(e)), 500
 
+@app.route('/item/<int:item_id>')
+def item_page(item_id):
+    current_user = get_current_user()
+    # Retrieve the item from the database using item_id
+    # This is just an example; you need to replace it with actual database retrieval code
+    item = {
+        'item_id': 1,
+        'seller_name': 'Alice',
+        'item_title': 'Vintage Lamp',
+        'end_time': '2023-10-15 12:00:00',
+        'buy_now_price': 50.00,
+        'description': 'A beautiful vintage lamp in excellent condition.',
+        'image_filename': 'vintage_lamp.jpg'  # Example image filename; replace with actual filename
+    }
+    if current_user:      
+        return render_template('item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
+    else :
+        return render_template('item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
+    
+@app.route('/user_profile')
+def user_profile():
+    user_id = session.get('user_id')
+    user_data = fetch_user_from_database(user_id)
+    current_user=get_current_user()
+    if user_data:
+        User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
+        user = User(*user_data)
+        if current_user:      
+            return render_template('user_profile.html', active_page='Profile', previous_url=request.referrer, current_user=current_user, user=user)
+        else :
+            return render_template('user_profile.html', previous_url=request.referrer, active_page='Profile')
+    else:
+        # Handle the case where there is no user data
+        return "User not found", 404

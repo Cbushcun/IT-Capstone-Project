@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>User Profile</title>
+    <style>
+        .profile-container {
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 8px;
+            width: 70%;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .profile-details label,
+        .profile-details p {
+            margin: 5px 0;
+        }
+
+        .profile-details {
+            text-align: left;
+        }
+
+        .editable {
+            color: #e74c3c;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <div class="profile-container">
+        <div class="profile-details">
+            <label>Username: {{ user.username }}</label><br>
+            <label>Email: {{ user.email or '<span class="editable" onclick="editField(\'email\')">Edit</span>'|safe }}</label><br>
+            <label>First Name: {{ user.first_name or '<span class="editable" onclick="editField(\'first_name\')">Edit</span>'|safe }}</label><br>
+            <label>Last Name: {{ user.last_name or '<span class="editable" onclick="editField(\'last_name\')">Edit</span>'|safe }}</label><br>
+            <label>Address: {{ user.address or '<span class="editable" onclick="editField(\'address\')">Edit</span>'|safe }}</label><br>
+            <label>Phone Number: {{ user.phone_number or '<span class="editable" onclick="editField(\'phone_number\')">Edit</span>'|safe }}</label><br>
+        </div>
+    </div>
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
+
+    <script>
+        function editField(fieldName) {
+            // Get the element that was clicked (the "Edit" link)
+            const editLink = event.target;
+
+            // Create an input element
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = fieldName;
+            input.value = editLink.previousSibling.textContent.trim(); // Set the initial value to the current text
+            input.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    submitEdit(input, fieldName); // Submit the edited data when "Enter" is pressed
+                }
+            });
+
+            // Create a button element
+            const button = document.createElement('button');
+            button.textContent = 'Save';
+            button.addEventListener('click', function () {
+                submitEdit(input, fieldName); // Submit the edited data when the button is clicked
+            });
+
+            // Replace the "Edit" link with the input and button
+            const parent = editLink.parentNode;
+            parent.replaceChild(button, editLink);
+            parent.insertBefore(input, button);
+        }
+
+        function submitEdit(input, fieldName) {
+            // Get the edited data from the input
+            const editedData = input.value;
+
+            // TODO: Implement the code to submit the edited data to the server
+
+            // For now, just log the edited data to the console
+            console.log('Submitting edited data:', fieldName, editedData);
+
+            // Replace the input and button with the edited data and "Edit" link
+            const parent = input.parentNode;
+            const editLink = document.createElement('span');
+            editLink.className = 'editable';
+            editLink.textContent = 'Edit';
+            editLink.addEventListener('click', function () {
+                editField(fieldName);
+            });
+            parent.replaceChild(editLink, input.nextSibling); // Replace button with "Edit" link
+            parent.replaceChild(document.createTextNode(editedData + ' '), input); // Replace input with edited data
+        }
+    </script>
+</body>
+
+</html>
