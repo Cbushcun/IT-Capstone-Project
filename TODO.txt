@@ -16,6 +16,8 @@ This is a general purpose .txt file to list any TODOs for the group. Anything li
 
 - Ensure that current code is commented, secured, and organized before continuing on with project to prevent future hiccups or slowdown due to clutter
 
+- Connect create_acution.html, item_page.html, and user_profile.html to database to display and connect data to the webpage.
+
 --------COMPLETE--------
 
 ---Christian---

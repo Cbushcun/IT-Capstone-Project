@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>{{ item.item_title }}</title>
+    <style>
+        .item-container {
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 8px;
+            width: 70%;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .item-image {
+            width: 80%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .item-details label,
+        .item-details p {
+            margin: 5px 0;
+        }
+
+        .item-details {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <div class="item-container">
+        <img src="{{ url_for('static', filename='img/' + item.image_filename) }}" alt="{{ item.item_title }}" class="item-image">
+        <div class="item-details">
+            <label>Seller: {{ item.seller_name }}</label>
+            <p>Item Title: {{ item.item_title }}</p>
+            <p>Auction Ends: {{ item.end_time }}</p>
+            <p>Buy Now Price: ${{ item.buy_now_price }}</p>
+            <p>Item Description: {{ item.description }}</p>
+        </div>
+    </div>
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
+</body>
+
+</html>

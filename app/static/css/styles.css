@@ -6,6 +6,7 @@ body {
     color: #ecf0f1;
     font-family: Arial, sans-serif;
     margin: 0;
+    padding-bottom: 60px;
 }
 
 .form-container {
@@ -163,3 +164,31 @@ position: fixed;
 bottom: 0;
 width: 100%;
 }
+
+.auction-listing {
+    background-color: #34495e;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.auction-listing:hover {
+    transform: scale(1.05); /* Added scale transformation on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Increased shadow on hover for more depth */
+    cursor: pointer;
+    
+}
+.auction-listing:not(:last-child) {
+    margin-bottom: 20px;
+}
+
+.auction-listing label,
+.auction-listing p {
+    margin: 5px 0;
+}
+

@@ -272,23 +272,6 @@ def get_username_by_user_id(user_id):
     else:
         print("User not found or database error.")
 
-def create_auction():
-    """Creates a new auction listing in the database."""
-    title = auction_title_entry.get()
-    description = auction_description_entry.get()
-    start_time = auction_start_time_entry.get()
-    end_time = auction_end_time_entry.get()
-    reserve_price = auction_reserve_price_entry.get()
-
-    # Insert auction data into the Auctions table
-    conn = sqlite3.connect("auction_website.db")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
-                   (1, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
-    conn.commit()
-    conn.close()
-
-
 def get_current_user():
     if 'user_id' in session:
         user = fetch_user_from_database(session['user_id'])  
@@ -317,13 +300,20 @@ def fetch_user_from_database(user_id):
     else:
         return None
     
-# Function for rendering templates to remove redundant code in routes.py
-def routes_render_template(template_html, active_page):
-    current_user = get_current_user()
-    if not template_html:
-        template_html = None
-        
-    if current_user:      
-        return render_template(template_html, active_page=active_page, previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template(template_html, previous_url=request.referrer, active_page=active_page)
+# Function for rendering templates to remove redundant code in routes.py 
+    
+def create_auction():
+    """Creates a new auction listing in the database."""
+    title = auction_title_entry.get()
+    description = auction_description_entry.get()
+    start_time = auction_start_time_entry.get()
+    end_time = auction_end_time_entry.get()
+    reserve_price = auction_reserve_price_entry.get()
+
+    # Insert auction data into the Auctions table
+    conn = sqlite3.connect("auction_website.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
+                   (1, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
+    conn.commit()
+    conn.close()
