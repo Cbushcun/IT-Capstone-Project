@@ -4,7 +4,7 @@ from jinja2 import TemplateNotFound
 from app import app
 from config import *
 
-#Routes to handle page navigation
+#-------------Routes to handle page navigation------------
 @app.route('/')
 def index():
     current_user = get_current_user()
@@ -76,7 +76,7 @@ def register():
             else:             
                 flash('Registration Success!', 'success')
                 print("DEBUG: Registration success flashed") #For Debugging      
-                return redirect(url_for('login', active_page='Login'))
+                return redirect(url_for('login'))
     return render_template('register.html', previous_url=request.referrer, active_page='Register', error=error)
 
 @app.route('/about_us')
@@ -96,8 +96,67 @@ def contact():
     else :
         return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
 
+@app.route('/item/<int:item_id>')
+def item_page(item_id):
+    current_user = get_current_user()
+    # Retrieve the item from the database using item_id
+    # This is just an example; you need to replace it with actual database retrieval code
+    item = {
+        'item_id': 1,
+        'seller_name': 'Alice',
+        'item_title': 'Vintage Lamp',
+        'end_time': '2023-10-15 12:00:00',
+        'buy_now_price': 50.00,
+        'description': 'A beautiful vintage lamp in excellent condition.',
+        'image_filename': 'vintage_lamp.jpg'  # Example image filename; replace with actual filename
+    }
+    if current_user:      
+        return render_template('item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
+    else :
+        return render_template('item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
 
-# Routes to handle error handling
+#-------Routes only for logged in users-------
+
+@app.route('/user_profile')
+def user_profile():
+    user_id = session.get('user_id')
+    user_data = fetch_user_from_database(user_id)
+    current_user=get_current_user()
+    if user_data:
+        User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
+        user = User(*user_data)
+        if current_user:      
+            return render_template('user_profile.html', active_page='Profile', previous_url=request.referrer, current_user=current_user, user=user)
+        else :
+            return render_template('user_profile.html', previous_url=request.referrer, active_page='Profile')
+    else:
+        # Handle the case where there is no user data
+        return redirect(url_for('login'))
+    
+@app.route('/create_auction')
+def create_auction():
+    user_id = session.get('user_id')
+    current_user=get_current_user()
+    if current_user:      
+        return render_template('create_auction.html', active_page='List an Item', previous_url=request.referrer, current_user=current_user)
+    else :
+        return redirect(url_for('login'))
+    
+@app.route('/user_bids')
+def user_bids():
+    current_user = get_current_user()
+    bids = [
+        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15 12:00:00', 'buy_now_price': 50.00},
+        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18 15:30:00', 'buy_now_price': 120.00},
+        # Add more filler data as needed
+    ]
+    if current_user:  
+        
+        return render_template('user_bids.html', active_page='Your Bids', previous_url=request.referrer, current_user=current_user, bids=bids)
+    else :
+        return redirect(url_for('login'))
+
+#-----------Routes to handle error handling---------
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
     log_data()
@@ -128,38 +187,3 @@ def handle_internal_server_error(e):
 def handle_exception(e):
     # Pass the error to handle_exception
     return render_template('error.html', error=str(e)), 500
-
-@app.route('/item/<int:item_id>')
-def item_page(item_id):
-    current_user = get_current_user()
-    # Retrieve the item from the database using item_id
-    # This is just an example; you need to replace it with actual database retrieval code
-    item = {
-        'item_id': 1,
-        'seller_name': 'Alice',
-        'item_title': 'Vintage Lamp',
-        'end_time': '2023-10-15 12:00:00',
-        'buy_now_price': 50.00,
-        'description': 'A beautiful vintage lamp in excellent condition.',
-        'image_filename': 'vintage_lamp.jpg'  # Example image filename; replace with actual filename
-    }
-    if current_user:      
-        return render_template('item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
-    else :
-        return render_template('item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
-    
-@app.route('/user_profile')
-def user_profile():
-    user_id = session.get('user_id')
-    user_data = fetch_user_from_database(user_id)
-    current_user=get_current_user()
-    if user_data:
-        User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
-        user = User(*user_data)
-        if current_user:      
-            return render_template('user_profile.html', active_page='Profile', previous_url=request.referrer, current_user=current_user, user=user)
-        else :
-            return render_template('user_profile.html', previous_url=request.referrer, active_page='Profile')
-    else:
-        # Handle the case where there is no user data
-        return "User not found", 404

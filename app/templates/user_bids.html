@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-    <title>Auction Page</title>
+    <title>Current Bids</title>
     <style>
         .form-container {
             width: 80%;
@@ -22,17 +22,17 @@
 <body>
     {% include 'navbar.html' %}
     <div class="form-container">
-        <h2>Available Auctions</h2>
-        {% for auction in auctions %}
-        <a href="{{ url_for('item_page', item_id=auction.auction_id) }}" style="text-decoration: none; color: inherit;">
+        <h2>Current Bids</h2>
+        {% for bid in bids %}
+        <a href="{{ url_for('item_page', item_id=bid.auction_id) }}" style="text-decoration: none; color: inherit;">
             <div class="auction-listing">
-                <label>Seller: {{ auction.seller_name }}</label>
-                <p>Item Title: {{ auction.item_title }}</p>
-                <p>Auction Ends: {{ auction.end_time }}</p>
-                <p>Buy Now Price: ${{ auction.buy_now_price }}</p>
+                <label>Seller: {{ bid.seller_name }}</label>
+                <p>Item Title: {{ bid.item_title }}</p>
+                <p>Auction Ends: {{ bid.end_time }}</p>
+                <p>Buy Now Price: ${{ bid.buy_now_price }}</p>
             </div>
         </a>
-            {% endfor %}
+        {% endfor %}
     </div>
     {% include 'footer.html' %}
 </body>

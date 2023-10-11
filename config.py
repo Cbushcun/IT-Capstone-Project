@@ -300,7 +300,7 @@ def fetch_user_from_database(user_id):
     else:
         return None
     
-# Function for rendering templates to remove redundant code in routes.py 
+# code not implemented yet
     
 def create_auction():
     """Creates a new auction listing in the database."""

@@ -36,68 +36,64 @@
 <body>
     {% include 'navbar.html' %}
     <div class="profile-container">
-        <div class="profile-details">
-            <label>Username: {{ user.username }}</label><br>
-            <label>Email: {{ user.email or '<span class="editable" onclick="editField(\'email\')">Edit</span>'|safe }}</label><br>
-            <label>First Name: {{ user.first_name or '<span class="editable" onclick="editField(\'first_name\')">Edit</span>'|safe }}</label><br>
-            <label>Last Name: {{ user.last_name or '<span class="editable" onclick="editField(\'last_name\')">Edit</span>'|safe }}</label><br>
-            <label>Address: {{ user.address or '<span class="editable" onclick="editField(\'address\')">Edit</span>'|safe }}</label><br>
-            <label>Phone Number: {{ user.phone_number or '<span class="editable" onclick="editField(\'phone_number\')">Edit</span>'|safe }}</label><br>
-        </div>
+        <form id="profileForm">
+            <div class="profile-details">
+                <label for="username">Username:</label>
+                <span id="username">{{ user.username }}</span><br>
+
+                <label for="email">Email:</label>
+                <span id="email">{{ user.email or '<span class="editable" onclick="editField(\'email\')">Edit</span>'|safe }}</span><br>
+
+                <label for="first_name">First Name:</label>
+                <span id="first_name">{{ user.first_name or '<span class="editable" onclick="editField(\'first_name\')">Edit</span>'|safe }}</span><br>
+
+                <label for="last_name">Last Name:</label>
+                <span id="last_name">{{ user.last_name or '<span class="editable" onclick="editField(\'last_name\')">Edit</span>'|safe }}</span><br>
+
+                <label for="address">Address:</label>
+                <span id="address">{{ user.address or '<span class="editable" onclick="editField(\'address\')">Edit</span>'|safe }}</span><br>
+
+                <label for="phone_number">Phone Number:</label>
+                <span id="phone_number">{{ user.phone_number or '<span class="editable" onclick="editField(\'phone_number\')">Edit</span>'|safe }}</span><br>
+            </div>
+            <input type="submit" value="Save All Changes">
+        </form>
     </div>
-    <footer>
-        {% include 'footer.html' %}
-    </footer>
+    {% include 'footer.html' %}
 
     <script>
         function editField(fieldName) {
-            // Get the element that was clicked (the "Edit" link)
-            const editLink = event.target;
+            const spanElement = document.getElementById(fieldName);
+            const currentValue = spanElement.textContent.trim();
 
-            // Create an input element
             const input = document.createElement('input');
             input.type = 'text';
             input.name = fieldName;
-            input.value = editLink.previousSibling.textContent.trim(); // Set the initial value to the current text
-            input.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    submitEdit(input, fieldName); // Submit the edited data when "Enter" is pressed
-                }
-            });
+            input.value = currentValue !== "Edit" ? currentValue : "";
 
-            // Create a button element
-            const button = document.createElement('button');
-            button.textContent = 'Save';
-            button.addEventListener('click', function () {
-                submitEdit(input, fieldName); // Submit the edited data when the button is clicked
-            });
-
-            // Replace the "Edit" link with the input and button
-            const parent = editLink.parentNode;
-            parent.replaceChild(button, editLink);
-            parent.insertBefore(input, button);
+            spanElement.innerHTML = '';
+            spanElement.appendChild(input);
+            input.focus();
         }
 
-        function submitEdit(input, fieldName) {
-            // Get the edited data from the input
-            const editedData = input.value;
+        document.getElementById("profileForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Get the form data
+            const formData = new FormData(event.target);
+
+            // Update the display and remove input fields
+            for (let [key, value] of formData.entries()) {
+                const spanElement = document.getElementById(key);
+                spanElement.innerHTML = value || '<span class="editable" onclick="editField(\'' + key + '\')">Edit</span>';
+            }
 
             // TODO: Implement the code to submit the edited data to the server
-
             // For now, just log the edited data to the console
-            console.log('Submitting edited data:', fieldName, editedData);
-
-            // Replace the input and button with the edited data and "Edit" link
-            const parent = input.parentNode;
-            const editLink = document.createElement('span');
-            editLink.className = 'editable';
-            editLink.textContent = 'Edit';
-            editLink.addEventListener('click', function () {
-                editField(fieldName);
-            });
-            parent.replaceChild(editLink, input.nextSibling); // Replace button with "Edit" link
-            parent.replaceChild(document.createTextNode(editedData + ' '), input); // Replace input with edited data
-        }
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+        });
     </script>
 </body>
 

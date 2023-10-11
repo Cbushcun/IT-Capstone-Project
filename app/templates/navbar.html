@@ -1,41 +1,41 @@
-<div class="navbar">
-    <div class="dropdown">
-        <button class="dropbtn">
-            {{ active_page }}
-            <i class="fa fa-caret-down"></i>
-        </button>
-        <div class="dropdown-content">
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('auction_page') }}">Browse Auctions</a>
-            <a href="{{ url_for('about') }}">About Us</a>
-            <a href="{{ url_for('contact') }}">Contact</a>
-        </div>
-
-    </div>
-    {% if active_page != 'Login' and active_page != 'Register' %}
-    <div class="login-register">
-        {% if current_user %}
+<header>
+    <div class="navbar">
         <div class="dropdown">
             <button class="dropbtn">
-                <span>Welcome, {{ current_user }}!</span>
+                {{ active_page }}
                 <i class="fa fa-caret-down"></i>
             </button>
-            <div class="dropdown-content dropdown-login-content">
-                <a href="{{ url_for('user_profile') }}">Profile</a>
-                <a href="#">Bidding & Purchases</a>
-                <a href="#">Selling & Listing</a>
-                <a href="#">Help & Support</a>
-                <a href="#">Settings</a>
-                <a href="{{ url_for('logout') }}">Sign Out</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('auction_page') }}">Browse Auctions</a>
+                <a href="{{ url_for('about') }}">About Us</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
             </div>
 
         </div>
-        {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register') }}">Register</a>
+        {% if active_page != 'Login' and active_page != 'Register' %}
+        <div class="login-register">
+            {% if current_user %}
+            <div class="dropdown">
+                <button class="dropbtn">
+                    <span>Welcome, {{ current_user }}!</span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content dropdown-login-content">
+                    <a href="{{ url_for('user_profile') }}">Profile</a>
+                    <a href="{{url_for('user_bids') }}">Bidding & Purchases</a>
+                    <a href="{{ url_for('create_auction') }}">Selling & Listing</a>
+                    <a href="#">Help & Support</a>
+                    <a href="#">Settings</a>
+                    <a href="{{ url_for('logout') }}">Sign Out</a>
+                </div>
+
+            </div>
+            {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-    {% endif %}
-</div>
-
-
+</header>
