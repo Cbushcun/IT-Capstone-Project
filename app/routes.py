@@ -139,6 +139,7 @@ def login():
         else:
             print("DEBUG: Result is other than None, flashing error result from Login_user()") #For Debugging
             flash(result, "error")
+            
     # Clear any existing flashed messages
     get_flashed_messages(category_filter=["error"]) 
     return render_template('pages/login.html', previous_url=request.referrer, active_page='Login', error=message)
@@ -211,10 +212,41 @@ def user_profile():
         # Handle the case where there is no user data
         return redirect(url_for('login'))
     
-@app.route('/create_auction')
+@app.route('/create_auction', methods=['GET', 'POST'])
 def create_auction():
     user_id = session.get('user_id')
     current_user=get_current_user()
+
+    if request.method == 'POST':
+        print("post method called") #for debugging
+
+        # Get form data from the request
+        title = request.form['title']
+        description = request.form['description']
+        end_time = request.form['end_time']
+        reserve_price = float(request.form['reserve_price'])  # Convert to float
+        starting_bid = float(request.form['starting_bid'])  # Convert to float
+        print("data retrieved") #for debugging
+
+        # Create a new auction object
+        auction = {
+            'seller_name': session.get('username'),
+            'auction_id': len(auctions) + 1,
+            'item_title': title,
+            'description': description,
+            'end_time': end_time,
+            'buy_now_price': reserve_price,
+            'current_bid': starting_bid,
+        }
+        print("auction object created") #for debugging
+
+        # Append the auction to the 'auctions' list
+        auctions.append(auction)
+        print("Auction appdended") #for debugging
+
+        # You can optionally redirect to a page showing the newly created auction
+        return redirect(url_for('item_page', auction_id=len(auctions)))
+    
     if current_user:      
         return render_template('user_pages/create_auction.html', active_page='List an Item', previous_url=request.referrer, current_user=current_user)
     else :
