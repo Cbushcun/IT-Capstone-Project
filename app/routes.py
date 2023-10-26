@@ -62,6 +62,12 @@ auctions = [
     {'auction_id': 50, 'seller_name': 'Xander', 'item_title': 'Vintage Books', 'end_time': '2024-02-18', 'buy_now_price': 45.00, 'current_bid': 100.00},
 ]
 
+user_bids_list = [
+        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00},
+        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00},
+        # Add more filler data as needed
+]
+
 #--------------------------------
 #Routes to handle page navigation
 #--------------------------------
@@ -198,9 +204,9 @@ def user_profile():
         User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
         user = User(*user_data)
         if current_user:      
-            return render_template('user_profile.html', active_page='Profile', previous_url=request.referrer, current_user=current_user, user=user)
+            return render_template('user_pages/user_profile.html', active_page='Profile', previous_url=request.referrer, current_user=current_user, user=user)
         else :
-            return render_template('user_profile.html', previous_url=request.referrer, active_page='Profile')
+            return render_template('user_pages/user_profile.html', previous_url=request.referrer, active_page='Profile')
     else:
         # Handle the case where there is no user data
         return redirect(url_for('login'))
@@ -214,20 +220,29 @@ def create_auction():
     else :
         return redirect(url_for('login'))
     
-@app.route('/user_bids')
-def user_bids():
+@app.route('/user_bids_page')
+def user_bids_page():
     current_user = get_current_user()
-    bids = [
-        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00},
-        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00},
-        # Add more filler data as needed
-    ]
-    if current_user:  
-        
-        return render_template('user_pages/user_bids.html', active_page='Your Bids', previous_url=request.referrer, current_user=current_user, bids=bids)
-    else :
-        return redirect(url_for('login'))
 
+    # Pagination settings
+    per_page = 25  # Number of listings per page
+    page = request.args.get('page', type=int, default=1)
+
+    # Calculate the start and end indices for the listings to display
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    # Slice the user_bids_list to display only the relevant listings
+    paginated_bids = user_bids_list[start:end]
+
+    # Calculate the total number of pages
+    total_pages = (len(user_bids_list) + per_page - 1) // per_page
+
+    if current_user:  
+        return render_template('user_pages/user_bids.html', active_page='Your Bids', previous_url=request.referrer, current_user=current_user, bids=paginated_bids, total_pages=total_pages, current_page=page)
+    else:
+        return redirect(url_for('login'))
+    
 #-------------------------------
 #Routes to handle error handling
 #-------------------------------
