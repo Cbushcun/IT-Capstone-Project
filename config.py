@@ -175,7 +175,9 @@ def login_user():
             session['user_id'] = user_id
             session['session_id'] = session_id = str(uuid.uuid4())
             session['username'] = None
-            
+            session['first_name'] = None
+            session['last_name'] = None
+
             expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
             conn = sqlite3.connect("auction_website.db")
             cursor = conn.cursor()
