@@ -5,3 +5,4 @@
 Flask  # Use the version number appropriate for your project
 Werkzeug  # Included with Flask, but listed for completeness
 Jinja2  # Included with Flask, but listed for completeness
+stripe # For payment processing

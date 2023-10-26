@@ -9,6 +9,8 @@ jqueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
 // Append the <script> element to the HTML's <head> section
 document.head.appendChild(jqueryScript);
 // JavaScript code goes here
+
+src="https://js.stripe.com/v3/"
 function validatePassword() {
     console.log("DEBUG: validatePassword function called"); // For debugging
     var password = document.getElementById("password");

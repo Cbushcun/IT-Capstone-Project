@@ -4,16 +4,18 @@ from jinja2 import TemplateNotFound
 from app import app
 from config import *
 
-#-------------Routes to handle page navigation------------
+#--------------------------------
+#Routes to handle page navigation
+#--------------------------------
+
 @app.route('/')
 def index():
     current_user = get_current_user()
     if current_user:      
-        return render_template('index.html', active_page='Home', previous_url=request.referrer, current_user=current_user)
+        return render_template('pages/index.html', active_page='Home', previous_url=request.referrer, current_user=current_user)
     else :
-        return render_template('index.html', previous_url=request.referrer, active_page='Home')
+        return render_template('pages/index.html', previous_url=request.referrer, active_page='Home')
     
-
 @app.route('/auction_page')
 def auction_page():
     current_user = get_current_user()
@@ -24,11 +26,10 @@ def auction_page():
     ]
     if current_user:  
         
-        return render_template('auction_page.html', active_page='Auctions', previous_url=request.referrer, current_user=current_user, auctions=auctions)
+        return render_template('pages/auction_page.html', active_page='Auctions', previous_url=request.referrer, current_user=current_user, auctions=auctions)
     else :
-        return render_template('auction_page.html', previous_url=request.referrer, active_page='Auctions', auctions=auctions)
+        return render_template('pages/auction_page.html', previous_url=request.referrer, active_page='Auctions', auctions=auctions)
     
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     message = None
@@ -46,7 +47,7 @@ def login():
             flash(result, "error")
     # Clear any existing flashed messages
     get_flashed_messages(category_filter=["error"]) 
-    return render_template('login.html', previous_url=request.referrer, active_page='Login', error=message)
+    return render_template('pages/login.html', previous_url=request.referrer, active_page='Login', error=message)
 
 @app.route('/logout')
 def logout():
@@ -77,7 +78,7 @@ def register():
                 flash('Registration Success!', 'success')
                 print("DEBUG: Registration success flashed") #For Debugging      
                 return redirect(url_for('login'))
-    return render_template('register.html', previous_url=request.referrer, active_page='Register', error=error)
+    return render_template('pages/register.html', previous_url=request.referrer, active_page='Register', error=error)
 
 @app.route('/about_us')
 def about():
@@ -111,11 +112,13 @@ def item_page(item_id):
         'image_filename': 'vintage_lamp.jpg'  # Example image filename; replace with actual filename
     }
     if current_user:      
-        return render_template('item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
+        return render_template('pages/item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
     else :
-        return render_template('item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
+        return render_template('pages/item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
 
-#-------Routes only for logged in users-------
+#-------------------------------
+#Routes only for logged in users
+#-------------------------------
 
 @app.route('/user_profile')
 def user_profile():
@@ -138,7 +141,7 @@ def create_auction():
     user_id = session.get('user_id')
     current_user=get_current_user()
     if current_user:      
-        return render_template('create_auction.html', active_page='List an Item', previous_url=request.referrer, current_user=current_user)
+        return render_template('user_pages/create_auction.html', active_page='List an Item', previous_url=request.referrer, current_user=current_user)
     else :
         return redirect(url_for('login'))
     
@@ -146,44 +149,47 @@ def create_auction():
 def user_bids():
     current_user = get_current_user()
     bids = [
-        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15 12:00:00', 'buy_now_price': 50.00},
-        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18 15:30:00', 'buy_now_price': 120.00},
+        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00},
+        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00},
         # Add more filler data as needed
     ]
     if current_user:  
         
-        return render_template('user_bids.html', active_page='Your Bids', previous_url=request.referrer, current_user=current_user, bids=bids)
+        return render_template('user_pages/user_bids.html', active_page='Your Bids', previous_url=request.referrer, current_user=current_user, bids=bids)
     else :
         return redirect(url_for('login'))
 
-#-----------Routes to handle error handling---------
+#-------------------------------
+#Routes to handle error handling
+#-------------------------------
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
     log_data()
-    return render_template('400.html', error=e), 400
+    return render_template('errors/400.html', error=e), 400
 
 @app.errorhandler(Forbidden)
 def handle_forbidden(e):
     log_data()
-    return render_template('403.html', error=e), 403
+    return render_template('errors/403.html', error=e), 403
 
 @app.errorhandler(NotFound)
 @app.errorhandler(TemplateNotFound)
 def handle_not_found(e):
     log_data()
-    return render_template('404.html', error=e), 404
+    return render_template('errors/404.html', error=e), 404
 
 @app.errorhandler(MethodNotAllowed)
 def handle_method_not_allowed(e):
     log_data()
-    return render_template('405.html', error=e), 405
+    return render_template('errors/405.html', error=e), 405
 
 @app.errorhandler(InternalServerError)
 def handle_internal_server_error(e):
     log_data()
-    return render_template('500.html', error=e), 500
+    return render_template('errors/500.html', error=e), 500
 
 @app.errorhandler(Exception)
 def handle_exception(e):
     # Pass the error to handle_exception
-    return render_template('error.html', error=str(e)), 500
+    return render_template('errors/error.html', error=str(e)), 500

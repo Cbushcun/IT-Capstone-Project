@@ -25,7 +25,10 @@ file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
 logger = logging.getLogger()
 logger.addHandler(file_handler)
 
-#Server configs
+#----------------------
+#Server-based functions
+#----------------------
+
 def log_server_start_stop(action):
     if action == 'start':
         logger.error('-----------Server Started-----------')
@@ -65,7 +68,6 @@ def clear_screen_and_get_input():
     if user_input.lower() == 'y':
         generate_new_secret_key()
     
-
 def generate_new_secret_key():
     os.remove(SECRET_KEY_FILE)
     load_or_create_secret_key()
@@ -76,8 +78,10 @@ def clear_screen():
         os.system('cls' if os.name == 'nt' else 'clear')  # Try 'cls' and 'clear' for console clearing
     else:
         os.system('clear') # Use 'clear' for Unix-like systems
-        
-#Database Config
+
+#----------------------------------
+#Functions for database informaiton
+#----------------------------------
     
 def hash_password(password, salt):
     """Hashes a password using SHA-256 with salt."""
@@ -299,8 +303,10 @@ def fetch_user_from_database(user_id):
         return user
     else:
         return None
-    
-# code not implemented yet
+
+#----------------------------------
+#Code notcurrently implemented/used
+#----------------------------------
     
 def create_auction():
     """Creates a new auction listing in the database."""
