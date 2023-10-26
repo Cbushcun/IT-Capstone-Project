@@ -4,6 +4,64 @@ from jinja2 import TemplateNotFound
 from app import app
 from config import *
 
+
+#--------------------------------------------------------------------
+#Sample data for testing purposes until complete database integration
+#--------------------------------------------------------------------
+
+auctions = [
+    {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00},
+    {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00},
+    {'auction_id': 3, 'seller_name': 'Charlie', 'item_title': 'Rare Collectible Coin', 'end_time': '2023-10-20', 'buy_now_price': 75.50},
+    {'auction_id': 4, 'seller_name': 'David', 'item_title': 'Art Deco Mirror', 'end_time': '2023-10-22', 'buy_now_price': 90.00},
+    {'auction_id': 5, 'seller_name': 'Eve', 'item_title': 'Vintage Typewriter', 'end_time': '2023-10-25', 'buy_now_price': 60.00},
+    {'auction_id': 6, 'seller_name': 'Frank', 'item_title': 'Rare Stamp Collection', 'end_time': '2023-10-28', 'buy_now_price': 110.00},
+    {'auction_id': 7, 'seller_name': 'Grace', 'item_title': 'Vintage Record Player', 'end_time': '2023-10-30', 'buy_now_price': 70.00},
+    {'auction_id': 8, 'seller_name': 'Henry', 'item_title': 'Antique Clock', 'end_time': '2023-11-02', 'buy_now_price': 85.00},
+    {'auction_id': 9, 'seller_name': 'Ivy', 'item_title': 'Classic Film Poster', 'end_time': '2023-11-05', 'buy_now_price': 55.00},
+    {'auction_id': 10, 'seller_name': 'Jack', 'item_title': 'Rare Baseball Card', 'end_time': '2023-11-08', 'buy_now_price': 150.00},
+    {'auction_id': 11, 'seller_name': 'Karen', 'item_title': 'Vintage Guitar', 'end_time': '2023-11-10', 'buy_now_price': 180.00},
+    {'auction_id': 12, 'seller_name': 'Larry', 'item_title': 'Collectible Comics', 'end_time': '2023-11-12', 'buy_now_price': 70.00},
+    {'auction_id': 13, 'seller_name': 'Megan', 'item_title': 'Rare Stamps', 'end_time': '2023-11-15', 'buy_now_price': 65.00},
+    {'auction_id': 14, 'seller_name': 'Nina', 'item_title': 'Vintage Camera', 'end_time': '2023-11-18', 'buy_now_price': 95.00},
+    {'auction_id': 15, 'seller_name': 'Oscar', 'item_title': 'Antique Jewelry', 'end_time': '2023-11-20', 'buy_now_price': 120.00},
+    {'auction_id': 16, 'seller_name': 'Paul', 'item_title': 'Classic Coins', 'end_time': '2023-11-22', 'buy_now_price': 55.00},
+    {'auction_id': 17, 'seller_name': 'Quincy', 'item_title': 'Vintage Art', 'end_time': '2023-11-25', 'buy_now_price': 70.00},
+    {'auction_id': 18, 'seller_name': 'Rachel', 'item_title': 'Rare Watches', 'end_time': '2023-11-28', 'buy_now_price': 110.00},
+    {'auction_id': 19, 'seller_name': 'Sam', 'item_title': 'Antique Furniture', 'end_time': '2023-11-30', 'buy_now_price': 200.00},
+    {'auction_id': 20, 'seller_name': 'Tom', 'item_title': 'Vintage Books', 'end_time': '2023-12-02', 'buy_now_price': 45.00},
+    {'auction_id': 21, 'seller_name': 'Ursula', 'item_title': 'Collectible Toys', 'end_time': '2023-12-05', 'buy_now_price': 80.00},
+    {'auction_id': 22, 'seller_name': 'Victor', 'item_title': 'Classic Paintings', 'end_time': '2023-12-08', 'buy_now_price': 150.00},
+    {'auction_id': 23, 'seller_name': 'Wendy', 'item_title': 'Rare Sculptures', 'end_time': '2023-12-10', 'buy_now_price': 130.00},
+    {'auction_id': 24, 'seller_name': 'Xander', 'item_title': 'Vintage Maps', 'end_time': '2023-12-12', 'buy_now_price': 60.00},
+    {'auction_id': 25, 'seller_name': 'Yvonne', 'item_title': 'Antique Pottery', 'end_time': '2023-12-15', 'buy_now_price': 75.00},
+    {'auction_id': 26, 'seller_name': 'Zane', 'item_title': 'Classic Coins', 'end_time': '2023-12-18', 'buy_now_price': 55.00},
+    {'auction_id': 27, 'seller_name': 'Amy', 'item_title': 'Vintage Jewelry', 'end_time': '2023-12-20', 'buy_now_price': 90.00},
+    {'auction_id': 28, 'seller_name': 'Ben', 'item_title': 'Rare Watches', 'end_time': '2023-12-22', 'buy_now_price': 110.00},
+    {'auction_id': 29, 'seller_name': 'Cathy', 'item_title': 'Antique Furniture', 'end_time': '2023-12-25', 'buy_now_price': 200.00},
+    {'auction_id': 30, 'seller_name': 'Dan', 'item_title': 'Vintage Books', 'end_time': '2023-12-28', 'buy_now_price': 45.00},
+    {'auction_id': 31, 'seller_name': 'Ella', 'item_title': 'Collectible Toys', 'end_time': '2023-12-30', 'buy_now_price': 80.00},
+    {'auction_id': 32, 'seller_name': 'Fred', 'item_title': 'Classic Paintings', 'end_time': '2024-01-02', 'buy_now_price': 150.00},
+    {'auction_id': 33, 'seller_name': 'Gina', 'item_title': 'Rare Sculptures', 'end_time': '2024-01-05', 'buy_now_price': 130.00},
+    {'auction_id': 34, 'seller_name': 'Hank', 'item_title': 'Vintage Maps', 'end_time': '2024-01-08', 'buy_now_price': 60.00},
+    {'auction_id': 35, 'seller_name': 'Isabel', 'item_title': 'Antique Pottery', 'end_time': '2024-01-10', 'buy_now_price': 75.00},
+    {'auction_id': 36, 'seller_name': 'Jake', 'item_title': 'Classic Coins', 'end_time': '2024-01-12', 'buy_now_price': 55.00},
+    {'auction_id': 37, 'seller_name': 'Karen', 'item_title': 'Vintage Jewelry', 'end_time': '2024-01-15', 'buy_now_price': 90.00},
+    {'auction_id': 38, 'seller_name': 'Larry', 'item_title': 'Rare Watches', 'end_time': '2024-01-18', 'buy_now_price': 110.00},
+    {'auction_id': 39, 'seller_name': 'Megan', 'item_title': 'Antique Furniture', 'end_time': '2024-01-20', 'buy_now_price': 200.00},
+    {'auction_id': 40, 'seller_name': 'Nina', 'item_title': 'Vintage Books', 'end_time': '2024-01-22', 'buy_now_price': 45.00},
+    {'auction_id': 41, 'seller_name': 'Oscar', 'item_title': 'Collectible Toys', 'end_time': '2024-01-25', 'buy_now_price': 80.00},
+    {'auction_id': 42, 'seller_name': 'Paul', 'item_title': 'Classic Paintings', 'end_time': '2024-01-28', 'buy_now_price': 150.00},
+    {'auction_id': 43, 'seller_name': 'Quincy', 'item_title': 'Rare Sculptures', 'end_time': '2024-01-30', 'buy_now_price': 130.00},
+    {'auction_id': 44, 'seller_name': 'Rachel', 'item_title': 'Vintage Maps', 'end_time': '2024-02-02', 'buy_now_price': 60.00},
+    {'auction_id': 45, 'seller_name': 'Sam', 'item_title': 'Antique Pottery', 'end_time': '2024-02-05', 'buy_now_price': 75.00},
+    {'auction_id': 46, 'seller_name': 'Tom', 'item_title': 'Classic Coins', 'end_time': '2024-02-08', 'buy_now_price': 55.00},
+    {'auction_id': 47, 'seller_name': 'Ursula', 'item_title': 'Vintage Jewelry', 'end_time': '2024-02-10', 'buy_now_price': 90.00},
+    {'auction_id': 48, 'seller_name': 'Victor', 'item_title': 'Rare Watches', 'end_time': '2024-02-12', 'buy_now_price': 110.00},
+    {'auction_id': 49, 'seller_name': 'Wendy', 'item_title': 'Antique Furniture', 'end_time': '2024-02-15', 'buy_now_price': 200.00},
+    {'auction_id': 50, 'seller_name': 'Xander', 'item_title': 'Vintage Books', 'end_time': '2024-02-18', 'buy_now_price': 45.00},
+]
+
 #--------------------------------
 #Routes to handle page navigation
 #--------------------------------
@@ -19,16 +77,46 @@ def index():
 @app.route('/auction_page')
 def auction_page():
     current_user = get_current_user()
-    auctions = [
-        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15 12:00:00', 'buy_now_price': 50.00},
-        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18 15:30:00', 'buy_now_price': 120.00},
-        # Add more filler data as needed
-    ]
+
+    # Pagination settings
+    per_page = 25  # Number of listings per page
+    page = request.args.get('page', type=int, default=1)
+
+    # Calculate the start and end indices for the listings to display
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    # Slice the auctions list to display only the relevant listings
+    paginated_auctions = auctions[start:end]
+
+    # Calculate the total number of pages
+    total_pages = (len(auctions) + per_page - 1) // per_page
+
     if current_user:  
-        
-        return render_template('pages/auction_page.html', active_page='Auctions', previous_url=request.referrer, current_user=current_user, auctions=auctions)
+        return render_template('pages/auction_page.html', active_page='Auctions', previous_url=request.referrer, current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     else :
-        return render_template('pages/auction_page.html', previous_url=request.referrer, active_page='Auctions', auctions=auctions)
+        return render_template('pages/auction_page.html',previous_url=request.referrer,active_page='Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
+    
+# Route for viewing items in a specific auction
+@app.route('/item/<int:auction_id>')
+def item_page(auction_id):
+    current_user = get_current_user()
+
+    # Find the relevant auction in the sample data based on auction_id
+    item = next((auction for auction in auctions if auction['auction_id'] == auction_id), None)
+
+    if item is not None:
+        # Pass the auctions list to the item_page route
+        item['auctions'] = auctions
+
+        if current_user:
+            return render_template('pages/item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
+        else:
+            return render_template('pages/item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
+    else:
+        # Handle the case where the auction_id doesn't match any auction
+        return "Item not found", 404
+
     
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -88,7 +176,6 @@ def about():
     else :
         return render_template('about_us.html', previous_url=request.referrer, active_page='About Us')
     
-
 @app.route('/contact_us')
 def contact():
     current_user = get_current_user()
@@ -97,24 +184,6 @@ def contact():
     else :
         return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
 
-@app.route('/item/<int:item_id>')
-def item_page(item_id):
-    current_user = get_current_user()
-    # Retrieve the item from the database using item_id
-    # This is just an example; you need to replace it with actual database retrieval code
-    item = {
-        'item_id': 1,
-        'seller_name': 'Alice',
-        'item_title': 'Vintage Lamp',
-        'end_time': '2023-10-15 12:00:00',
-        'buy_now_price': 50.00,
-        'description': 'A beautiful vintage lamp in excellent condition.',
-        'image_filename': 'vintage_lamp.jpg'  # Example image filename; replace with actual filename
-    }
-    if current_user:      
-        return render_template('pages/item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
-    else :
-        return render_template('pages/item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
 
 #-------------------------------
 #Routes only for logged in users

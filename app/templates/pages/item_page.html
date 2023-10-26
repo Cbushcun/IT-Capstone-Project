@@ -31,24 +31,77 @@
         .item-details {
             text-align: left;
         }
+
+        
+        /* Style for the bid link and input */
+        .bid-input-container {
+            display: flex;
+            justify-content: center; /* Center the elements horizontally */
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px;
+        }
+        
+        .bid-link {
+            display: flex;
+            text-align: center;
+            font-size: 18px;
+            margin-left: 20px;
+            width: 200px;
+            text-decoration: none;
+            color: #e74c3c; /* Link color */
+            border: 2px solid #e74c3c; /* Link border */
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .bid-link:hover {
+            background-color: #e74c3c; /* Hover background color */
+            color: #fff; /* Hover text color */
+        }
     </style>
 </head>
 
 <body>
     {% include 'navbar.html' %}
     <div class="item-container">
-        <img src="{{ url_for('static', filename='img/' + item.image_filename) }}" alt="{{ item.item_title }}" class="item-image">
         <div class="item-details">
             <label>Seller: {{ item.seller_name }}</label>
             <p>Item Title: {{ item.item_title }}</p>
             <p>Auction Ends: {{ item.end_time }}</p>
+            <p>Current Bid: ${{ item.current_bid }}</p>
             <p>Buy Now Price: ${{ item.buy_now_price }}</p>
             <p>Item Description: {{ item.description }}</p>
         </div>
+        <div class="bid-input-container">
+            <label for="bid-amount">Enter Bid Amount: $</label>
+            <input type="text" id="bid-amount" class="bid-input" placeholder="0.00">
+            <a href="#" class="bid-link">Place a Bid</a>
+        </div>
+        
     </div>
     <footer>
         {% include 'footer.html' %}
     </footer>
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const bidInput = document.getElementById("bid-amount");
+        const placeBidButton = document.getElementById("place-bid-button");
 
+        // Restrict input to 0.00 format
+        bidInput.addEventListener("input", function () {
+            const value = bidInput.value.trim();
+            if (!/^\d+(\.\d{0,2})?$/.test(value)) {
+                bidInput.value = value.slice(0, -1);
+            }
+        });
+
+        // Handle bid submission
+        placeBidButton.addEventListener("click", function () {
+            const bidAmount = bidInput.value;
+            // Add code to submit the bid with the bidAmount
+        });
+    });
+</script>
 </html>
