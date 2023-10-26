@@ -170,9 +170,12 @@ def login_user():
         
         if hashed_password == salt + hashed_password_input:
             print("DEBUG: Passwords match, session created and stored") #For Debugging
+
             # Passwords match; create a session and store it in the Sessions table
             session['user_id'] = user_id
             session['session_id'] = session_id = str(uuid.uuid4())
+            session['username'] = None
+            
             expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
             conn = sqlite3.connect("auction_website.db")
             cursor = conn.cursor()
