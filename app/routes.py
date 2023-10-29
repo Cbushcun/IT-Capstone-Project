@@ -74,15 +74,15 @@ user_bids_list = [
 
 @app.route('/')
 def index():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('pages/index.html', active_page='Home', previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template('pages/index.html', previous_url=request.referrer, active_page='Home')
-    
+    current_user = session.get('username')
+    if current_user is None:   
+        return render_template('pages/index.html', active_page='Home') 
+    else:
+        return render_template('pages/index.html', active_page='Home', current_user=current_user)
+        
 @app.route('/auction_page')
 def auction_page():
-    current_user = get_current_user()
+    current_user = session.get('username')
 
     # Pagination settings
     per_page = 25  # Number of listings per page
@@ -98,15 +98,15 @@ def auction_page():
     # Calculate the total number of pages
     total_pages = (len(auctions) + per_page - 1) // per_page
 
-    if current_user:  
-        return render_template('pages/auction_page.html', active_page='Auctions', previous_url=request.referrer, current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
+    if current_user is None:
+        return render_template('pages/auction_page.html',active_page='Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     else :
-        return render_template('pages/auction_page.html',previous_url=request.referrer,active_page='Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
+        return render_template('pages/auction_page.html', active_page='Auctions', current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     
 # Route for viewing items in a specific auction
 @app.route('/item/<int:auction_id>')
 def item_page(auction_id):
-    current_user = get_current_user()
+    current_user = session.get('username')
 
     # Find the relevant auction in the sample data based on auction_id
     item = next((auction for auction in auctions if auction['auction_id'] == auction_id), None)
@@ -115,10 +115,11 @@ def item_page(auction_id):
         # Pass the auctions list to the item_page route
         item['auctions'] = auctions
 
-        if current_user:
-            return render_template('pages/item_page.html', active_page='Listing', previous_url=request.referrer, current_user=current_user, item=item)
+        if current_user is None:
+            return render_template('pages/item_page.html', active_page='Listing', item=item)
         else:
-            return render_template('pages/item_page.html', previous_url=request.referrer, active_page='Listing', item=item)
+            return render_template('pages/item_page.html', active_page='Listing', current_user=current_user, item=item)
+            
     else:
         # Handle the case where the auction_id doesn't match any auction
         return "Item not found", 404
@@ -131,7 +132,7 @@ def login():
     if request.method == 'POST':
         print("DEBUG: Post method called") #For Debugging
         result = login_user()
-        print("DEBUG: login_user() called and stored to result") #For Debugging
+        print("DEBUG: login_user() called and stored to 'result' variable ") #For Debugging
         
         if result is None: 
             print("DEBUG: Result is 'None', redirection to index") #For Debugging
@@ -142,7 +143,7 @@ def login():
             
     # Clear any existing flashed messages
     get_flashed_messages(category_filter=["error"]) 
-    return render_template('pages/login.html', previous_url=request.referrer, active_page='Login', error=message)
+    return render_template('pages/login.html', active_page='Login', error=message)
 
 @app.route('/logout')
 def logout():
@@ -173,23 +174,26 @@ def register():
                 flash('Registration Success!', 'success')
                 print("DEBUG: Registration success flashed") #For Debugging      
                 return redirect(url_for('login'))
-    return render_template('pages/register.html', previous_url=request.referrer, active_page='Register', error=error)
+    return render_template('pages/register.html', active_page='Register', error=error)
 
 @app.route('/about_us')
 def about():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('about_us.html', active_page='About Us', previous_url=request.referrer, current_user=current_user)
+    current_user = session.get('username')
+
+    if current_user is None:
+        return render_template('about_us.html', active_page='About Us')
     else :
-        return render_template('about_us.html', previous_url=request.referrer, active_page='About Us')
+        return render_template('about_us.html', active_page='About Us', current_user=current_user)
+        
     
 @app.route('/contact_us')
 def contact():
-    current_user = get_current_user()
-    if current_user:      
-        return render_template('contact_us.html', active_page='Contact Us', previous_url=request.referrer, current_user=current_user)
-    else :
-        return render_template('contact_us.html', previous_url=request.referrer, active_page='Contact Us')
+    current_user = session.get('username')
+    if current_user is None:      
+        return render_template('contact_us.html', active_page='Contact Us') 
+    else:
+        return render_template('contact_us.html', active_page='Contact Us', current_user=current_user)
+        
 
 
 #-------------------------------
@@ -204,10 +208,11 @@ def user_profile():
     if user_data:
         User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
         user = User(*user_data)
-        if current_user:      
-            return render_template('user_pages/user_profile.html', active_page='Profile', previous_url=request.referrer, current_user=current_user, user=user)
+        if current_user is None:      
+            return render_template('user_pages/user_profile.html', active_page='Profile')
         else :
-            return render_template('user_pages/user_profile.html', previous_url=request.referrer, active_page='Profile')
+            return render_template('user_pages/user_profile.html', active_page='Profile', current_user=current_user, user=user)
+            
     else:
         # Handle the case where there is no user data
         return redirect(url_for('login'))
@@ -247,14 +252,14 @@ def create_auction():
         # You can optionally redirect to a page showing the newly created auction
         return redirect(url_for('item_page', auction_id=len(auctions)))
     
-    if current_user:      
-        return render_template('user_pages/create_auction.html', active_page='List an Item', previous_url=request.referrer, current_user=current_user)
-    else :
+    if current_user is None:      
         return redirect(url_for('login'))
+    else:
+        return render_template('user_pages/create_auction.html', active_page='List an Item', current_user=current_user)
     
 @app.route('/user_bids_page')
 def user_bids_page():
-    current_user = get_current_user()
+    current_user = session.get('username')
 
     # Pagination settings
     per_page = 25  # Number of listings per page
@@ -270,10 +275,10 @@ def user_bids_page():
     # Calculate the total number of pages
     total_pages = (len(user_bids_list) + per_page - 1) // per_page
 
-    if current_user:  
-        return render_template('user_pages/user_bids.html', active_page='Your Bids', previous_url=request.referrer, current_user=current_user, bids=paginated_bids, total_pages=total_pages, current_page=page)
+    if current_user is None: 
+        return redirect(url_for('login')) 
     else:
-        return redirect(url_for('login'))
+        return render_template('user_pages/user_bids.html', active_page='Your Bids', current_user=current_user, bids=paginated_bids, total_pages=total_pages, current_page=page)
     
 #-------------------------------
 #Routes to handle error handling

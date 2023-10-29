@@ -148,6 +148,7 @@ def register_user():
 
 def login_user():
     """Logs in a user and creates a session."""
+
     email = request.form['email']
     password = request.form['password']
     print("DEBUG: Password and email stored for comparison") #For Debugging
@@ -169,14 +170,16 @@ def login_user():
         print("DEBUG: Input password hashed with salt from stored password", hashed_password_input) #For Debugging
         
         if hashed_password == salt + hashed_password_input:
-            print("DEBUG: Passwords match, session created and stored") #For Debugging
-
-            # Passwords match; create a session and store it in the Sessions table
-            session['user_id'] = user_id
+            print("DEBUG: Hashed password == salt + hashed password") #For Debugging
+            # Passwords match; create a flask session and store it in the Sessions table
+            # User = namedtuple('User', [[0]'user_id',[1]'username',[2]'email',[3]'password',[4]'first_name',[5]'last_name',[6]'address',[7]'phone_number'])
+            user = fetch_user_from_database(user_id)
+            session['user_id'] = user[0]
             session['session_id'] = session_id = str(uuid.uuid4())
-            session['username'] = None
-            session['first_name'] = None
-            session['last_name'] = None
+            session['username'] = user[1]
+            session['first_name'] = user[4]
+            session['last_name'] = user[5]
+            print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
 
             expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
             conn = sqlite3.connect("auction_website.db")
@@ -189,19 +192,21 @@ def login_user():
 
             # Redirect to the main application interface
             return None
+        
     error = "Invalid email or password"
     print("DEBUG: Error, returning:", error) #For Debugging
     return error
 
 def logout_user():
     """Logs out a user, destroys the session, and removes it from the database."""
+    
     print("DEBUG: logout_user() called") #For Debugging
     conn = None  # Initialize conn to None
     print("DEBUG: conn initialized to None") #For Debugging
     try:
         # Extract session_id from the current session
-        session_id = str(session['session_id']) if 'session_id' in session else None
-        user_id = str(session['user_id']) if 'user_id' in session else None
+        session_id = session.get('session_id') # previous code that was here: str(session['session_id']) if 'session_id' in session else None
+        user_id = session.get('user_id') # previous code that was here: str(session['user_id']) if 'user_id' in session else None
         print("DEBUG: session_id and user_id extracted from session") #For Debugging
         
         # Validate session_id and user_id exist
@@ -225,7 +230,7 @@ def logout_user():
 
         # Optionally, log the user's logout activity
         #log_data()  # Assuming log_data function logs user activities including logout
-        print("DEBUG: Data Logged") #For Debugging
+        # print("DEBUG: Data Logged") #For Debugging
 
         # Redirect to the login page or the home page after logout
         print("DEBUG: Redirecting to login") #For Debugging
@@ -286,7 +291,7 @@ def get_current_user():
         user = fetch_user_from_database(session['user_id'])  
         return user.username if user else None
     return None
-
+  
 def fetch_user_from_database(user_id):
     """
     Fetch a user from the database using the user_id.
@@ -313,18 +318,24 @@ def fetch_user_from_database(user_id):
 #Code notcurrently implemented/used
 #----------------------------------
     
-def create_auction():
-    """Creates a new auction listing in the database."""
-    title = auction_title_entry.get()
-    description = auction_description_entry.get()
-    start_time = auction_start_time_entry.get()
-    end_time = auction_end_time_entry.get()
-    reserve_price = auction_reserve_price_entry.get()
+#def create_auction():
+
+#    """Creates a new auction listing in the database."""
+#    title = auction_title_entry.get()
+#    description = auction_description_entry.get()
+#    start_time = auction_start_time_entry.get()
+#    end_time = auction_end_time_entry.get()
+#    reserve_price = auction_reserve_price_entry.get()
 
     # Insert auction data into the Auctions table
-    conn = sqlite3.connect("auction_website.db")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
-                   (1, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
-    conn.commit()
-    conn.close()
+#    conn = sqlite3.connect("auction_website.db")
+#    cursor = conn.cursor()
+#    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
+#                   (1, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
+#    conn.commit()
+#    conn.close()
+
+
+#------------------------------------
+#Temporary code for filler data usage
+#------------------------------------

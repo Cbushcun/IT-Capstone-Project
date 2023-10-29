@@ -5,5 +5,6 @@ This is a general purpose .txt file to list any TODOs for the group. Anything li
 - Constant testing of webapp to ensure that it is secure once features are added. List any issues that need to be looked at under TODO.
 
 --------TODO--------
--- Christian: initialize and implement sessions through webapp
-    
+-- Christian: 
+    -initialize and implement sessions through webapp
+    -implement a way to check when auction as ended, then require user to pay for item. (currently optional) relist item if payment not taken in a timely manner
