@@ -63,8 +63,8 @@ auctions = [
 ]
 
 user_bids_list = [
-        {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00},
-        {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00},
+    {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00, 'current_bid': 35.00},
+    {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00, 'current_bid': 80.00},
         # Add more filler data as needed
 ]
 
@@ -136,7 +136,6 @@ def item_page(auction_id):
         # Handle the case where the auction_id doesn't match any auction
         return "Item not found", 404
 
-    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     message = None
