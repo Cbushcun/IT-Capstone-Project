@@ -204,7 +204,7 @@ def contact():
         return render_template('contact_us.html', active_page='Contact Us') 
     else:
         return render_template('contact_us.html', active_page='Contact Us', current_user=current_user)
-        
+
 
 
 #-------------------------------
