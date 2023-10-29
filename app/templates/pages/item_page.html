@@ -26,6 +26,7 @@
         .item-details label,
         .item-details p {
             margin: 5px 0;
+            text-align: center;
         }
 
         .item-details {
@@ -46,13 +47,13 @@
             display: flex;
             text-align: center;
             font-size: 18px;
-            margin-left: 20px;
             width: 200px;
             text-decoration: none;
             color: #e74c3c; /* Link color */
             border: 2px solid #e74c3c; /* Link border */
             padding: 10px 20px;
             border-radius: 5px;
+            background-color: transparent;
         }
 
         .bid-link:hover {
@@ -69,16 +70,25 @@
             <label>Seller: {{ item.seller_name }}</label>
             <p>Item Title: {{ item.item_title }}</p>
             <p>Auction Ends: {{ item.end_time }}</p>
-            <p>Current Bid: ${{ item.current_bid }}</p>
-            <p>Buy Now Price: ${{ item.buy_now_price }}</p>
+            <p id="current-bid">Current Bid: ${{ item.current_bid }}</p>
             <p>Item Description: {{ item.description }}</p>
         </div>
+        {% if current_user %}
         <div class="bid-input-container">
-            <label for="bid-amount">Enter Bid Amount: $</label>
-            <input type="text" id="bid-amount" class="bid-input" placeholder="0.00">
-            <a href="#" class="bid-link">Place a Bid</a>
+            <form method="POST" action="">
+                <label for="bid-amount">Enter Bid Amount: $</label>
+                <input name="bid-amount" type="text" id="bid-amount" class="bid-input" placeholder="0.00">
+                <button type="submit" class="bid-link">Place a Bid</button>
+            </form>       
         </div>
-        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <p class="alert">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}  
+        {% endif %}
     </div>
     <footer>
         {% include 'footer.html' %}
@@ -88,6 +98,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         const bidInput = document.getElementById("bid-amount");
         const placeBidButton = document.getElementById("place-bid-button");
+        const currentBidElement = document.getElementById('current-bid');
 
         // Restrict input to 0.00 format
         bidInput.addEventListener("input", function () {
@@ -98,9 +109,25 @@
         });
 
         // Handle bid submission
-        placeBidButton.addEventListener("click", function () {
-            const bidAmount = bidInput.value;
-            // Add code to submit the bid with the bidAmount
+        const form = document.querySelector('form');
+        form.addEventListener("submit", function (event) {
+            // Get the current bid value from the HTML (strip "$" and parse as a float)
+            const currentBid = parseFloat(currentBidElement.innerText.replace('Current Bid: $', '').trim());
+
+            // Get the bid amount entered by the user (parse as a float)
+            const bidAmount = parseFloat(bidInput.value);
+
+            console.log('currentBid', currentBid)
+            console.log('bidAmount:', bidAmount)
+            // Perform bid validation
+            if (isNaN(bidAmount) || bidAmount <= currentBid) {
+                alert('Bid amount must be a valid number and higher than the current bid.');
+                event.preventDefault(); // Prevent form submission
+            } else {
+                // If the bid is valid, you can proceed with form submission
+                alert('Bid placed successfully.');
+                // You can also submit the form here or perform any other desired actions.
+            }
         });
     });
 </script>

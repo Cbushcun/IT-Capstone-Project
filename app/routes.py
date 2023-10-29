@@ -104,13 +104,25 @@ def auction_page():
         return render_template('pages/auction_page.html', active_page='Auctions', current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     
 # Route for viewing items in a specific auction
-@app.route('/item/<int:auction_id>')
+@app.route('/item/<int:auction_id>', methods=['GET', 'POST'])
 def item_page(auction_id):
     current_user = session.get('username')
 
     # Find the relevant auction in the sample data based on auction_id
     item = next((auction for auction in auctions if auction['auction_id'] == auction_id), None)
 
+    if request.method == 'POST':
+        # Handle the bid submission
+        new_bid = float(request.form['bid-amount'])
+        if new_bid > item['current_bid']:
+            item['current_bid'] = new_bid
+        else:
+            flash('Bid must be higher than the current bid', 'error')
+            return redirect(url_for('item_page', auction_id=auction_id))
+
+        # After updating the bid, redirect back to the item page to display the updated bid
+        return redirect(url_for('item_page', auction_id=auction_id))
+    
     if item is not None:
         # Pass the auctions list to the item_page route
         item['auctions'] = auctions
