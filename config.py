@@ -79,6 +79,17 @@ def clear_screen():
     else:
         os.system('clear') # Use 'clear' for Unix-like systems
 
+def find_completed_auctions(bid_list):
+    current_date = datetime.datetime.now().date()
+    completed_auctions = []
+
+    for auction in bid_list:
+        end_time = datetime.datetime.strptime(auction['end_time'], '%Y-%m-%d').date()
+        if end_time < current_date:
+            completed_auctions.append(auction)
+
+    return completed_auctions
+
 #----------------------------------
 #Functions for database informaiton
 #----------------------------------
