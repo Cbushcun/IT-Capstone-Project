@@ -4,6 +4,7 @@ from jinja2 import TemplateNotFound
 from app import app
 from config import *
 
+address = "http://127.0.0.1:5000" #to use in stripe route to handle payment success and cancel. Change when needed
 
 #--------------------------------------------------------------------
 #Sample data for testing purposes until complete database integration
@@ -157,28 +158,28 @@ def contact():
     else:
         return render_template('contact_us.html', active_page='Contact Us', current_user=current_user)
 
-@app.route('/cancel')
-def cancel():
+@app.route('/payment_cancel')
+def payment_cancel():
     current_user = session.get('username')
     if current_user is None:   
-        return render_template('cancel.html', active_page='Home') 
+        return render_template('payment_cancel.html', active_page='Home') 
     else:
-        return render_template('cancel.html', active_page='Home', current_user=current_user)
+        return render_template('payment_cancel.html', active_page='Home', current_user=current_user)
 
-@app.route('/success')
-def success():
+@app.route('/payment_success')
+def payment_success():
     current_user = session.get('username')
     if current_user is None:   
-        return render_template('success.html', active_page='Home') 
+        return render_template('payment_success.html', active_page='Home') 
     else:
-        return render_template('success.html', active_page='Home', current_user=current_user)
+        return render_template('payment_success.html', active_page='Home', current_user=current_user)
 
 @app.route('/create-checkout-session')
 def create_checkout_session():
     item_price = float(request.args.get('price'))  # Default price if not provided
 
     # Create a Stripe Checkout Session with the dynamic item price
-    session = stripe.checkout.Session.create(
+    stripe_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=[{
             'price_data': {
@@ -186,16 +187,16 @@ def create_checkout_session():
                 'product_data': {
                     'name': 'Your Product Name',
                 },
-                'unit_amount': int(item_price),
+                'unit_amount': int(item_price * 100),
             },
             'quantity': 1,
         }],
         mode='payment',
-        success_url=url_for('success'),
-        cancel_url=url_for('cancel'),
+        success_url=address + "/payment_success",
+        cancel_url=address + "/payment_cancel"
     )
 
-    return jsonify({'sessionId': session.id})
+    return jsonify({'sessionId': stripe_session.id})
 
 #-------------------------------
 #Routes only for logged in users

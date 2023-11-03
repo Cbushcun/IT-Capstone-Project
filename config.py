@@ -2,7 +2,7 @@ from collections import namedtuple
 import os # Import os module to use environment variables
 import secrets # Import secrets module to generate secure SECRET_KEY
 import platform  # Import the platform module to determine the OS
-from flask import redirect, url_for, request, render_template, session
+from flask import redirect, url_for, request, render_template, session, jsonify
 from db_setup import *
 import logging
 import sqlite3

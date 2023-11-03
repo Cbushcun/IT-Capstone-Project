@@ -2,7 +2,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const itemPrice = parseFloat('{{ item.current_bid }}');
+        const itemPrice = parseFloat('{{ item[6] }}');
 
         const stripe = Stripe('pk_test_51O5C7EAGed7Nbg9WvxAcbHbfgCuCzZaov9GrqaJ7E8n1v2tyC6eWA212VCR9bC9l8klBqTC2Di0xOnGPiEcGbsEn00zwgkYsAZ');
 
