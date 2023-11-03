@@ -10,6 +10,10 @@ import hashlib
 import uuid
 import datetime
 import re
+import stripe
+
+
+stripe.api_key = 'sk_test_51O5C7EAGed7Nbg9Wt84xkDMdLyw477BQ3RcE7yq8JqKlT1CfgWcbsCjQTB8OKDQu0zw9l0mwOpjqXzxat4Orc8xV006OlHB08N'
 
 # Logging setup
 SECRET_KEY_FILE = 'secret_key.txt'
@@ -89,6 +93,22 @@ def find_completed_auctions(bid_list):
             completed_auctions.append(auction)
 
     return completed_auctions
+
+def find_active_auctions(bid_list):
+    current_date = datetime.datetime.now().date()
+    active_auctions = []
+
+    for auction in bid_list:
+        end_time = datetime.datetime.strptime(auction['end_time'], '%Y-%m-%d').date()
+        if end_time >= current_date:
+            active_auctions.append(auction)
+
+    return active_auctions
+
+def has_bid_ended(item):
+    current_date = datetime.datetime.now().date()
+    end_time = datetime.datetime.strptime(item[5], '%Y-%m-%d').date()
+    return end_time < current_date
 
 #----------------------------------
 #Functions for database informaiton
@@ -265,7 +285,7 @@ def logout_user():
 def get_username_by_user_id(user_id):
     try:
         # Establish a connection to the SQLite database
-        conn = sqlite3.connect("your_database.db")
+        conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
 
         # Execute a SQL query to fetch the username based on user_id
@@ -324,29 +344,136 @@ def fetch_user_from_database(user_id):
         return user
     else:
         return None
+ 
+def create_auction_in_database( item_seller_id, item_name, item_desc, item_start_time, item_end_time, item_reserve_price):
 
-#----------------------------------
-#Code notcurrently implemented/used
-#----------------------------------
-    
-#def create_auction():
-
-#    """Creates a new auction listing in the database."""
-#    title = auction_title_entry.get()
-#    description = auction_description_entry.get()
-#    start_time = auction_start_time_entry.get()
-#    end_time = auction_end_time_entry.get()
-#    reserve_price = auction_reserve_price_entry.get()
+    """Creates a new auction listing in the database."""
+    seller_id = item_seller_id
+    title = item_name
+    description = item_desc
+    start_time = item_start_time
+    end_time = item_end_time
+    reserve_price = item_reserve_price
 
     # Insert auction data into the Auctions table
-#    conn = sqlite3.connect("auction_website.db")
-#    cursor = conn.cursor()
-#    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
-#                   (1, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
-#    conn.commit()
-#    conn.close()
+    conn = sqlite3.connect("auction_website.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
+                   (seller_id, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
+    conn.commit()
+    conn.close()
+
+def get_most_recent_auction_id():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to retrieve the most recent auction_id
+        cursor.execute("SELECT auction_id FROM Auctions ORDER BY auction_id DESC LIMIT 1")
+        most_recent_auction_id = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        if most_recent_auction_id:
+            return most_recent_auction_id[0]  # Extract the auction_id from the tuple
+        else:
+            return None  # No entries in the table
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
+    
+def get_most_recent_auction():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to retrieve the most recent entry in the "Auctions" table
+        cursor.execute("SELECT * FROM Auctions ORDER BY auction_id DESC LIMIT 1")
+        most_recent_auction = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        return most_recent_auction
 
 
-#------------------------------------
-#Temporary code for filler data usage
-#------------------------------------
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
+    
+def find_auction_by_id(auction_id):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to retrieve the row with the specified auction_id
+        cursor.execute("SELECT * FROM Auctions WHERE auction_id = ?", (auction_id,))
+        result = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        return result  # Returns the row as a tuple
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
+    
+def update_reserve_price(auction_id, new_reserve_price):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute an SQL query to update the reserve_price for the specified auction_id
+        cursor.execute("UPDATE Auctions SET reserve_price = ? WHERE auction_id = ?", (new_reserve_price, auction_id))
+
+        # Commit the changes and close the database connection
+        conn.commit()
+        conn.close()
+
+        return True  # Success
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return False  # Failure
+    
+def get_unexpired_auctions():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Get the current date and time
+        current_datetime = datetime.datetime.now()
+
+        # Execute a SQL query to retrieve unexpired auctions
+        cursor.execute("SELECT auction_id, seller_id, title, description, end_time, reserve_price FROM Auctions WHERE end_time > ?", (current_datetime,))
+        unexpired_auctions = cursor.fetchall()
+        # Close the database connection
+        conn.close()
+
+        # Convert the fetched data to a list of dictionaries
+        auction_data = []
+        for row in unexpired_auctions:
+            auction_id, seller_id, title, description, end_time, reserve_price = row
+            seller_name = get_username_by_user_id(seller_id)
+            auction_data.append({
+                'auction_id': auction_id,
+                'seller_name': seller_name,
+                'title': title,
+                'description': description,
+                'end_time': end_time,
+                'reserve_price': reserve_price
+            })
+
+        return auction_data
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None

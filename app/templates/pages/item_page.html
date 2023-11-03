@@ -67,32 +67,31 @@
     {% include 'navbar.html' %}
     <div class="item-container">
         <div class="item-details">
-            <label>Seller: {{ item.seller_name }}</label>
-            <p>Item Title: {{ item.item_title }}</p>
-            <p>Auction Ends: {{ item.end_time }}</p>
-            <p id="current-bid">Current Bid: ${{ item.current_bid }}</p>
-            <p>Item Description: {{ item.description }}</p>
+            <label>Seller: {{ seller }}</label>
+            <p>Item Title: {{ item[2] }}</p>
+            <p>Auction Ends: {{ item[5] }}</p>
+            <p id="current-bid">Current Bid: ${{ item[6] }}</p>
+            <p>Item Description: {{ item[3] }}</p>
         </div>
-        {% if current_user %}
-        <div class="bid-input-container">
-            <form method="POST" action="">
-                <label for="bid-amount">Enter Bid Amount: $</label>
-                <input name="bid-amount" type="text" id="bid-amount" class="bid-input" placeholder="0.00">
-                <button type="submit" class="bid-link">Place a Bid</button>
-            </form>       
-        </div>
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if current_user and not bid_finished and current_user != seller %}
+            <div class="bid-input-container">
+                <form method="POST" action="">
+                    <label for="bid-amount">Enter Bid Amount: $</label>
+                    <input name="bid-amount" type="text" id="bid-amount" class="bid-input" placeholder="0.00">
+                    <button type="submit" class="bid-link">Place a Bid</button>
+                </form>       
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                    <p class="alert">{{ message }}</p>
+                        <p class="alert">{{ message }}</p>
                     {% endfor %}
                 {% endif %}
             {% endwith %}  
         {% endif %}
+        {% include 'payment_link.html' %}
     </div>
-    <footer>
-        {% include 'footer.html' %}
-    </footer>
+    {% include 'footer.html' %}
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

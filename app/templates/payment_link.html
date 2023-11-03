@@ -1,0 +1,27 @@
+<button id="payButton">Pay with Stripe</button>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const itemPrice = parseFloat('{{ item.current_bid }}');
+
+        const stripe = Stripe('pk_test_51O5C7EAGed7Nbg9WvxAcbHbfgCuCzZaov9GrqaJ7E8n1v2tyC6eWA212VCR9bC9l8klBqTC2Di0xOnGPiEcGbsEn00zwgkYsAZ');
+
+        document.getElementById('payButton').addEventListener('click', function () {
+            // Create a Stripe session with the dynamic amount
+
+            fetch('/create-checkout-session?price=' + itemPrice)
+                .then(function (result) {
+                    return result.json();
+                })
+                .then(function (data) {
+                    return stripe.redirectToCheckout({ sessionId: data.sessionId });
+                })
+                .then(function (result) {
+                    // Handle the result if needed
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+        });
+    });
+</script>

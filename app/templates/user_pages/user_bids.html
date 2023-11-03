@@ -22,7 +22,7 @@
 <body>
     {% include 'navbar.html' %}
     <div class="form-container">
-        <h2>Current Bids</h2>
+        <h2>Completed Bids (needs winning bider id column in auction table to properly display bids user has won)</h2>
         {% for bid in bids %}
             <a href="{{ url_for('item_page', auction_id=bid.auction_id) }}" style="text-decoration: none; color: inherit;">
                 <div class="auction-listing">

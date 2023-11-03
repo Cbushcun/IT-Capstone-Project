@@ -9,59 +9,6 @@ from config import *
 #Sample data for testing purposes until complete database integration
 #--------------------------------------------------------------------
 
-auctions = [
-    {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00, 'current_bid': 35.00},
-    {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00, 'current_bid': 80.00},
-    {'auction_id': 3, 'seller_name': 'Charlie', 'item_title': 'Rare Collectible Coin', 'end_time': '2023-10-20', 'buy_now_price': 75.50, 'current_bid': 60.00},
-    {'auction_id': 4, 'seller_name': 'David', 'item_title': 'Art Deco Mirror', 'end_time': '2023-10-22', 'buy_now_price': 90.00, 'current_bid': 70.00},
-    {'auction_id': 5, 'seller_name': 'Eve', 'item_title': 'Vintage Typewriter', 'end_time': '2023-10-25', 'buy_now_price': 60.00, 'current_bid': 45.00},
-    {'auction_id': 6, 'seller_name': 'Frank', 'item_title': 'Rare Stamp Collection', 'end_time': '2023-10-28', 'buy_now_price': 110.00, 'current_bid': 95.00},
-    {'auction_id': 7, 'seller_name': 'Grace', 'item_title': 'Vintage Record Player', 'end_time': '2023-10-30', 'buy_now_price': 70.00, 'current_bid': 55.00},
-    {'auction_id': 8, 'seller_name': 'Henry', 'item_title': 'Antique Clock', 'end_time': '2023-11-02', 'buy_now_price': 85.00, 'current_bid': 65.00},
-    {'auction_id': 9, 'seller_name': 'Ivy', 'item_title': 'Classic Film Poster', 'end_time': '2023-11-05', 'buy_now_price': 55.00, 'current_bid': 40.00},
-    {'auction_id': 10, 'seller_name': 'Jack', 'item_title': 'Rare Baseball Card', 'end_time': '2023-11-08', 'buy_now_price': 150.00, 'current_bid': 120.00},
-    {'auction_id': 11, 'seller_name': 'Karen', 'item_title': 'Vintage Guitar', 'end_time': '2023-11-10', 'buy_now_price': 180.00, 'current_bid': 140.00},
-    {'auction_id': 12, 'seller_name': 'Larry', 'item_title': 'Collectible Comics', 'end_time': '2023-11-12', 'buy_now_price': 70.00, 'current_bid': 50.00},
-    {'auction_id': 13, 'seller_name': 'Megan', 'item_title': 'Rare Stamps', 'end_time': '2023-11-15', 'buy_now_price': 65.00, 'current_bid': 55.00},
-    {'auction_id': 14, 'seller_name': 'Nina', 'item_title': 'Vintage Camera', 'end_time': '2023-11-18', 'buy_now_price': 95.00, 'current_bid': 70.00},
-    {'auction_id': 15, 'seller_name': 'Oscar', 'item_title': 'Antique Jewelry', 'end_time': '2023-11-20', 'buy_now_price': 120.00, 'current_bid': 100.00},
-    {'auction_id': 16, 'seller_name': 'Paul', 'item_title': 'Classic Coins', 'end_time': '2023-11-22', 'buy_now_price': 55.00, 'current_bid': 40.00},
-    {'auction_id': 17, 'seller_name': 'Quincy', 'item_title': 'Vintage Art', 'end_time': '2023-11-25', 'buy_now_price': 70.00, 'current_bid': 50.00},
-    {'auction_id': 18, 'seller_name': 'Rachel', 'item_title': 'Rare Watches', 'end_time': '2023-11-28', 'buy_now_price': 110.00, 'current_bid': 85.00},
-    {'auction_id': 19, 'seller_name': 'Sam', 'item_title': 'Antique Furniture', 'end_time': '2023-11-30', 'buy_now_price': 200.00, 'current_bid': 150.00},
-    {'auction_id': 20, 'seller_name': 'Tom', 'item_title': 'Vintage Books', 'end_time': '2023-12-02', 'buy_now_price': 45.00, 'current_bid': 30.00},
-    {'auction_id': 21, 'seller_name': 'Ursula', 'item_title': 'Collectible Toys', 'end_time': '2023-12-05', 'buy_now_price': 80.00, 'current_bid': 60.00},
-    {'auction_id': 22, 'seller_name': 'Victor', 'item_title': 'Classic Paintings', 'end_time': '2023-12-08', 'buy_now_price': 150.00, 'current_bid': 120.00},
-    {'auction_id': 23, 'seller_name': 'Wendy', 'item_title': 'Rare Sculptures', 'end_time': '2023-12-10', 'buy_now_price': 130.00, 'current_bid': 100.00},
-    {'auction_id': 24, 'seller_name': 'Xander', 'item_title': 'Vintage Maps', 'end_time': '2023-12-12', 'buy_now_price': 60.00, 'current_bid': 45.00},
-    {'auction_id': 25, 'seller_name': 'Yvonne', 'item_title': 'Antique Pottery', 'end_time': '2023-12-15', 'buy_now_price': 75.00, 'current_bid': 60.00},
-    {'auction_id': 26, 'seller_name': 'Zane', 'item_title': 'Classic Coins', 'end_time': '2023-12-18', 'buy_now_price': 55.00, 'current_bid': 40.00},
-    {'auction_id': 27, 'seller_name': 'Amy', 'item_title': 'Vintage Jewelry', 'end_time': '2023-12-20', 'buy_now_price': 90.00, 'current_bid': 70.00},
-    {'auction_id': 28, 'seller_name': 'Ben', 'item_title': 'Rare Watches', 'end_time': '2023-12-22', 'buy_now_price': 110.00, 'current_bid': 85.00},
-    {'auction_id': 29, 'seller_name': 'Cathy', 'item_title': 'Antique Furniture', 'end_time': '2023-12-25', 'buy_now_price': 200.00, 'current_bid': 150.00},
-    {'auction_id': 30, 'seller_name': 'Dan', 'item_title': 'Vintage Books', 'end_time': '2023-12-28', 'buy_now_price': 45.00, 'current_bid': 30.00},
-    {'auction_id': 31, 'seller_name': 'Ella', 'item_title': 'Collectible Toys', 'end_time': '2023-12-30', 'buy_now_price': 80.00, 'current_bid': 60.00},
-    {'auction_id': 32, 'seller_name': 'Fred', 'item_title': 'Classic Paintings', 'end_time': '2024-01-02', 'buy_now_price': 150.00, 'current_bid': 100.00},
-    {'auction_id': 33, 'seller_name': 'Gina', 'item_title': 'Rare Sculptures', 'end_time': '2024-01-05', 'buy_now_price': 130.00, 'current_bid': 90.00},
-    {'auction_id': 34, 'seller_name': 'Hank', 'item_title': 'Vintage Maps', 'end_time': '2024-01-08', 'buy_now_price': 60.00, 'current_bid': 40.00},
-    {'auction_id': 35, 'seller_name': 'Isabel', 'item_title': 'Antique Pottery', 'end_time': '2024-01-10', 'buy_now_price': 75.00, 'current_bid': 60.00},
-    {'auction_id': 36, 'seller_name': 'Jake', 'item_title': 'Classic Coins', 'end_time': '2024-01-12', 'buy_now_price': 55.00, 'current_bid': 40.00},
-    {'auction_id': 37, 'seller_name': 'Karen', 'item_title': 'Vintage Jewelry', 'end_time': '2024-01-15', 'buy_now_price': 90.00, 'current_bid': 70.00},
-    {'auction_id': 38, 'seller_name': 'Larry', 'item_title': 'Rare Watches', 'end_time': '2024-01-18', 'buy_now_price': 110.00, 'current_bid': 85.00},
-    {'auction_id': 39, 'seller_name': 'Megan', 'item_title': 'Antique Furniture', 'end_time': '2024-01-20', 'buy_now_price': 200.00, 'current_bid': 150.00},
-    {'auction_id': 40, 'seller_name': 'Nina', 'item_title': 'Vintage Books', 'end_time': '2024-01-22', 'buy_now_price': 45.00, 'current_bid': 30.00},
-    {'auction_id': 41, 'seller_name': 'Oscar', 'item_title': 'Collectible Toys', 'end_time': '2024-01-25', 'buy_now_price': 80.00, 'current_bid': 60.00},
-    {'auction_id': 42, 'seller_name': 'Paul', 'item_title': 'Classic Paintings', 'end_time': '2024-01-28', 'buy_now_price': 150.00, 'current_bid': 100.00},
-    {'auction_id': 43, 'seller_name': 'Quincy', 'item_title': 'Rare Sculptures', 'end_time': '2024-01-30', 'buy_now_price': 130.00, 'current_bid': 100.00},
-    {'auction_id': 44, 'seller_name': 'Rachel', 'item_title': 'Vintage Maps', 'end_time': '2024-02-02', 'buy_now_price': 60.00, 'current_bid': 100.00},
-    {'auction_id': 45, 'seller_name': 'Sam', 'item_title': 'Antique Pottery', 'end_time': '2024-02-05', 'buy_now_price': 75.00, 'current_bid': 100.00},
-    {'auction_id': 46, 'seller_name': 'Tom', 'item_title': 'Classic Coins', 'end_time': '2024-02-08', 'buy_now_price': 55.00, 'current_bid': 100.00},
-    {'auction_id': 47, 'seller_name': 'Ursula', 'item_title': 'Vintage Jewelry', 'end_time': '2024-02-10', 'buy_now_price': 90.00, 'current_bid': 100.00},
-    {'auction_id': 48, 'seller_name': 'Victor', 'item_title': 'Rare Watches', 'end_time': '2024-02-12', 'buy_now_price': 110.00, 'current_bid': 100.00},
-    {'auction_id': 49, 'seller_name': 'Wendy', 'item_title': 'Antique Furniture', 'end_time': '2024-02-15', 'buy_now_price': 200.00, 'current_bid': 100.00},
-    {'auction_id': 50, 'seller_name': 'Xander', 'item_title': 'Vintage Books', 'end_time': '2024-02-18', 'buy_now_price': 45.00, 'current_bid': 100.00},
-]
-
 user_bids_list = [
     {'auction_id': 1, 'seller_name': 'Alice', 'item_title': 'Vintage Lamp', 'end_time': '2023-10-15', 'buy_now_price': 50.00, 'current_bid': 35.00},
     {'auction_id': 2, 'seller_name': 'Bob', 'item_title': 'Antique Vase', 'end_time': '2023-10-18', 'buy_now_price': 120.00, 'current_bid': 80.00},
@@ -92,11 +39,12 @@ def auction_page():
     start = (page - 1) * per_page
     end = start + per_page
 
+    available_auctions = get_unexpired_auctions()
     # Slice the auctions list to display only the relevant listings
-    paginated_auctions = auctions[start:end]
+    paginated_auctions = available_auctions[start:end]
 
     # Calculate the total number of pages
-    total_pages = (len(auctions) + per_page - 1) // per_page
+    total_pages = (len(available_auctions) + per_page - 1) // per_page
 
     if current_user is None:
         return render_template('pages/auction_page.html',active_page='Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
@@ -109,13 +57,16 @@ def item_page(auction_id):
     current_user = session.get('username')
 
     # Find the relevant auction in the sample data based on auction_id
-    item = next((auction for auction in auctions if auction['auction_id'] == auction_id), None)
-
+    item = find_auction_by_id(auction_id)
+    seller_id = item[1]
+    seller_info = fetch_user_from_database(seller_id)
+    seller_name = seller_info[1]
     if request.method == 'POST':
         # Handle the bid submission
         new_bid = float(request.form['bid-amount'])
-        if new_bid > item['current_bid']:
-            item['current_bid'] = new_bid
+        
+        if new_bid > item[6]:
+            update_reserve_price(auction_id, new_bid)
         else:
             flash('Bid must be higher than the current bid', 'error')
             return redirect(url_for('item_page', auction_id=auction_id))
@@ -125,12 +76,13 @@ def item_page(auction_id):
     
     if item is not None:
         # Pass the auctions list to the item_page route
-        item['auctions'] = auctions
+        bid_finished = has_bid_ended(item)
+        print("Bid finished: ", bid_finished) 
 
         if current_user is None:
-            return render_template('pages/item_page.html', active_page='Listing', item=item)
+            return render_template('pages/item_page.html', active_page='Listing', item=item, seller=seller_name)
         else:
-            return render_template('pages/item_page.html', active_page='Listing', current_user=current_user, item=item)
+            return render_template('pages/item_page.html', active_page='Listing', current_user=current_user, item=find_auction_by_id(auction_id), bid_finished=bid_finished, seller=seller_name)
             
     else:
         # Handle the case where the auction_id doesn't match any auction
@@ -205,7 +157,45 @@ def contact():
     else:
         return render_template('contact_us.html', active_page='Contact Us', current_user=current_user)
 
+@app.route('/cancel')
+def cancel():
+    current_user = session.get('username')
+    if current_user is None:   
+        return render_template('cancel.html', active_page='Home') 
+    else:
+        return render_template('cancel.html', active_page='Home', current_user=current_user)
 
+@app.route('/success')
+def success():
+    current_user = session.get('username')
+    if current_user is None:   
+        return render_template('success.html', active_page='Home') 
+    else:
+        return render_template('success.html', active_page='Home', current_user=current_user)
+
+@app.route('/create-checkout-session')
+def create_checkout_session():
+    item_price = float(request.args.get('price'))  # Default price if not provided
+
+    # Create a Stripe Checkout Session with the dynamic item price
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=[{
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                    'name': 'Your Product Name',
+                },
+                'unit_amount': int(item_price),
+            },
+            'quantity': 1,
+        }],
+        mode='payment',
+        success_url=url_for('success'),
+        cancel_url=url_for('cancel'),
+    )
+
+    return jsonify({'sessionId': session.id})
 
 #-------------------------------
 #Routes only for logged in users
@@ -240,28 +230,16 @@ def create_auction():
         title = request.form['title']
         description = request.form['description']
         end_time = request.form['end_time']
-        reserve_price = float(request.form['reserve_price'])  # Convert to float
-        starting_bid = float(request.form['starting_bid'])  # Convert to float
+        starting_bid = float(request.form['reserve_price'])  # Convert to float
+        start_time = datetime.datetime.now().date()
         print("data retrieved") #for debugging
 
+        create_auction_in_database( user_id, title, description, start_time, end_time, starting_bid)
         # Create a new auction object
-        auction = {
-            'seller_name': session.get('username'),
-            'auction_id': len(auctions) + 1,
-            'item_title': title,
-            'description': description,
-            'end_time': end_time,
-            'buy_now_price': reserve_price,
-            'current_bid': starting_bid,
-        }
-        print("auction object created") #for debugging
-
-        # Append the auction to the 'auctions' list
-        auctions.append(auction)
-        print("Auction appdended") #for debugging
-
+        print("auction row created") #for debugging
+        
         # You can optionally redirect to a page showing the newly created auction
-        return redirect(url_for('item_page', auction_id=len(auctions)))
+        return redirect(url_for('item_page', auction_id=get_most_recent_auction_id()))
     
     if current_user is None:      
         return redirect(url_for('login'))
