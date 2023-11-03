@@ -176,7 +176,8 @@ def payment_success():
 
 @app.route('/create-checkout-session')
 def create_checkout_session():
-    item_price = float(request.args.get('price'))  # Default price if not provided
+    item_price = float(request.args.get('price'))
+    product_name = request.args.get('productName')
 
     # Create a Stripe Checkout Session with the dynamic item price
     stripe_session = stripe.checkout.Session.create(
@@ -185,7 +186,7 @@ def create_checkout_session():
             'price_data': {
                 'currency': 'usd',
                 'product_data': {
-                    'name': 'Your Product Name',
+                    'name': product_name,
                 },
                 'unit_amount': int(item_price * 100),
             },

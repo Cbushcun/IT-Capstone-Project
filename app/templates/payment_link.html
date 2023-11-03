@@ -1,15 +1,16 @@
-<button id="payButton">Pay with Stripe</button>
+<button id="payButton" data-product-name="{{ item[2] }}">Pay with Stripe</button>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const itemPrice = parseFloat('{{ item[6] }}');
+        const productName = document.getElementById('payButton').getAttribute('data-product-name');
 
         const stripe = Stripe('pk_test_51O5C7EAGed7Nbg9WvxAcbHbfgCuCzZaov9GrqaJ7E8n1v2tyC6eWA212VCR9bC9l8klBqTC2Di0xOnGPiEcGbsEn00zwgkYsAZ');
 
         document.getElementById('payButton').addEventListener('click', function () {
             // Create a Stripe session with the dynamic amount
 
-            fetch('/create-checkout-session?price=' + itemPrice)
+            fetch('/create-checkout-session?price=' + itemPrice + '&productName=' + encodeURIComponent(productName))
                 .then(function (result) {
                     return result.json();
                 })
