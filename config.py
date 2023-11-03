@@ -9,9 +9,11 @@ import sqlite3
 import hashlib
 import uuid
 import datetime
+from datetime import timedelta
 import re
 import stripe
 
+session_length_hours = 1
 
 stripe.api_key = 'sk_test_51O5C7EAGed7Nbg9Wt84xkDMdLyw477BQ3RcE7yq8JqKlT1CfgWcbsCjQTB8OKDQu0zw9l0mwOpjqXzxat4Orc8xV006OlHB08N'
 
@@ -205,21 +207,39 @@ def login_user():
             # Passwords match; create a flask session and store it in the Sessions table
             # User = namedtuple('User', [[0]'user_id',[1]'username',[2]'email',[3]'password',[4]'first_name',[5]'last_name',[6]'address',[7]'phone_number'])
             user = fetch_user_from_database(user_id)
-            session['user_id'] = user[0]
+            session['user_id'] = user[0]  
             session['session_id'] = session_id = str(uuid.uuid4())
             session['username'] = user[1]
             session['first_name'] = user[4]
             session['last_name'] = user[5]
-            print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
+            
 
-            expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
-            conn = sqlite3.connect("auction_website.db")
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO Sessions (session_id, user_id, expiration) VALUES (?, ?, ?)",
-                           (session_id, user_id, expiration))        
-            conn.commit()
-            conn.close()
-            print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging
+            if not check_and_delete_expired_session(user[0]):
+                expiration = datetime.datetime.now() + datetime.timedelta(hours=session_length_hours)  # Session expires in 1 hour
+                conn = sqlite3.connect("auction_website.db")
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO Sessions (session_id, user_id, expiration) VALUES (?, ?, ?)",
+                            (session_id, user_id, expiration))        
+                conn.commit()
+                conn.close()
+                conn = sqlite3.connect("auction_website.db")  # Replace with your actual database path
+                cursor = conn.cursor()
+
+                # Execute an SQL query to retrieve the session_id based on the user_id
+                cursor.execute("SELECT session_id FROM Sessions WHERE user_id = ?", (user_id,))
+                session_data = cursor.fetchone()
+
+                if session_data:
+                    session_id = session_data[0]  # Extract the session_id from the result
+
+                    # Close the database connection
+                    conn.close()
+                    
+                print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging        
+
+            session['session_id'] = session_id
+
+            print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
 
             # Redirect to the main application interface
             return None
@@ -228,6 +248,42 @@ def login_user():
     print("DEBUG: Error, returning:", error) #For Debugging
     return error
 
+def check_and_delete_expired_session(user_id):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")  # Replace with your actual database path
+        cursor = conn.cursor()
+
+        # Get the current date and time
+        current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S,%f')[:-3]
+
+        # Execute an SQL query to check for an existing session with the provided user_id
+        cursor.execute("SELECT user_id, expiration FROM Sessions WHERE user_id = ?", (user_id,))
+        session_data = cursor.fetchone()
+
+        if session_data:
+            # If a session with the user_id exists, check if it's expired
+            user_id, expiration = session_data
+            if expiration < current_datetime:
+                # Session is expired, delete it
+                cursor.execute("DELETE FROM Sessions WHERE user_id = ? AND expiration < ?", (user_id, current_datetime))
+                conn.commit()
+                print("Expired session deleted") #FOR DEBUGGING
+            else:
+                # Session is valid
+                conn.close()
+                print("Valid session found")
+                return True
+
+        # Close the database connection
+        conn.close()
+
+        return False  # No valid session found
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return False  # Failure
+    
 def logout_user():
     """Logs out a user, destroys the session, and removes it from the database."""
     
