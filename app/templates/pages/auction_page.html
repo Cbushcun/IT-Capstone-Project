@@ -27,10 +27,9 @@
         <a href="{{ url_for('item_page', auction_id=auction.auction_id) }}" style="text-decoration: none; color: inherit;">
             <div class="auction-listing">
                 <label>Seller: {{ auction.seller_name }}</label>
-                <p>Item Title: {{ auction.item_title }}</p>
+                <p>Item Title: {{ auction.title }}</p>
                 <p>Auction Ends: {{ auction.end_time }}</p>
-                <p>Current Bid: {{ auction.current_bid }}</p>
-                <p>Buy Now Price: ${{ auction.buy_now_price }}</p>
+                <p>Current Bid: {{ auction.reserve_price }}</p>
             </div>
         </a>
         {% endfor %}

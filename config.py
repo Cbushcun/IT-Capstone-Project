@@ -2,14 +2,20 @@ from collections import namedtuple
 import os # Import os module to use environment variables
 import secrets # Import secrets module to generate secure SECRET_KEY
 import platform  # Import the platform module to determine the OS
-from flask import redirect, url_for, request, render_template, session
+from flask import redirect, url_for, request, render_template, session, jsonify
 from db_setup import *
 import logging
 import sqlite3
 import hashlib
 import uuid
 import datetime
+from datetime import timedelta
 import re
+import stripe
+
+session_length_hours = 1
+
+stripe.api_key = 'sk_test_51O5C7EAGed7Nbg9Wt84xkDMdLyw477BQ3RcE7yq8JqKlT1CfgWcbsCjQTB8OKDQu0zw9l0mwOpjqXzxat4Orc8xV006OlHB08N'
 
 # Logging setup
 SECRET_KEY_FILE = 'secret_key.txt'
@@ -78,6 +84,33 @@ def clear_screen():
         os.system('cls' if os.name == 'nt' else 'clear')  # Try 'cls' and 'clear' for console clearing
     else:
         os.system('clear') # Use 'clear' for Unix-like systems
+
+def find_completed_auctions(bid_list):
+    current_date = datetime.datetime.now().date()
+    completed_auctions = []
+
+    for auction in bid_list:
+        end_time = datetime.datetime.strptime(auction['end_time'], '%Y-%m-%d').date()
+        if end_time < current_date:
+            completed_auctions.append(auction)
+
+    return completed_auctions
+
+def find_active_auctions(bid_list):
+    current_date = datetime.datetime.now().date()
+    active_auctions = []
+
+    for auction in bid_list:
+        end_time = datetime.datetime.strptime(auction['end_time'], '%Y-%m-%d').date()
+        if end_time >= current_date:
+            active_auctions.append(auction)
+
+    return active_auctions
+
+def has_bid_ended(item):
+    current_date = datetime.datetime.now().date()
+    end_time = datetime.datetime.strptime(item[5], '%Y-%m-%d').date()
+    return end_time < current_date
 
 #----------------------------------
 #Functions for database informaiton
@@ -174,21 +207,39 @@ def login_user():
             # Passwords match; create a flask session and store it in the Sessions table
             # User = namedtuple('User', [[0]'user_id',[1]'username',[2]'email',[3]'password',[4]'first_name',[5]'last_name',[6]'address',[7]'phone_number'])
             user = fetch_user_from_database(user_id)
-            session['user_id'] = user[0]
+            session['user_id'] = user[0]  
             session['session_id'] = session_id = str(uuid.uuid4())
             session['username'] = user[1]
             session['first_name'] = user[4]
             session['last_name'] = user[5]
-            print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
+            
 
-            expiration = datetime.datetime.now() + datetime.timedelta(hours=1)  # Session expires in 1 hour
-            conn = sqlite3.connect("auction_website.db")
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO Sessions (session_id, user_id, expiration) VALUES (?, ?, ?)",
-                           (session_id, user_id, expiration))        
-            conn.commit()
-            conn.close()
-            print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging
+            if not check_and_delete_expired_session(user[0]):
+                expiration = datetime.datetime.now() + datetime.timedelta(hours=session_length_hours)  # Session expires in 1 hour
+                conn = sqlite3.connect("auction_website.db")
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO Sessions (session_id, user_id, expiration) VALUES (?, ?, ?)",
+                            (session_id, user_id, expiration))        
+                conn.commit()
+                conn.close()
+                conn = sqlite3.connect("auction_website.db")  # Replace with your actual database path
+                cursor = conn.cursor()
+
+                # Execute an SQL query to retrieve the session_id based on the user_id
+                cursor.execute("SELECT session_id FROM Sessions WHERE user_id = ?", (user_id,))
+                session_data = cursor.fetchone()
+
+                if session_data:
+                    session_id = session_data[0]  # Extract the session_id from the result
+
+                    # Close the database connection
+                    conn.close()
+                    
+                print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging        
+
+            session['session_id'] = session_id
+
+            print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
 
             # Redirect to the main application interface
             return None
@@ -197,6 +248,42 @@ def login_user():
     print("DEBUG: Error, returning:", error) #For Debugging
     return error
 
+def check_and_delete_expired_session(user_id):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")  # Replace with your actual database path
+        cursor = conn.cursor()
+
+        # Get the current date and time
+        current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S,%f')[:-3]
+
+        # Execute an SQL query to check for an existing session with the provided user_id
+        cursor.execute("SELECT user_id, expiration FROM Sessions WHERE user_id = ?", (user_id,))
+        session_data = cursor.fetchone()
+
+        if session_data:
+            # If a session with the user_id exists, check if it's expired
+            user_id, expiration = session_data
+            if expiration < current_datetime:
+                # Session is expired, delete it
+                cursor.execute("DELETE FROM Sessions WHERE user_id = ? AND expiration < ?", (user_id, current_datetime))
+                conn.commit()
+                print("Expired session deleted") #FOR DEBUGGING
+            else:
+                # Session is valid
+                conn.close()
+                print("Valid session found")
+                return True
+
+        # Close the database connection
+        conn.close()
+
+        return False  # No valid session found
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return False  # Failure
+    
 def logout_user():
     """Logs out a user, destroys the session, and removes it from the database."""
     
@@ -254,7 +341,7 @@ def logout_user():
 def get_username_by_user_id(user_id):
     try:
         # Establish a connection to the SQLite database
-        conn = sqlite3.connect("your_database.db")
+        conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
 
         # Execute a SQL query to fetch the username based on user_id
@@ -313,29 +400,136 @@ def fetch_user_from_database(user_id):
         return user
     else:
         return None
+ 
+def create_auction_in_database( item_seller_id, item_name, item_desc, item_start_time, item_end_time, item_reserve_price):
 
-#----------------------------------
-#Code notcurrently implemented/used
-#----------------------------------
-    
-#def create_auction():
-
-#    """Creates a new auction listing in the database."""
-#    title = auction_title_entry.get()
-#    description = auction_description_entry.get()
-#    start_time = auction_start_time_entry.get()
-#    end_time = auction_end_time_entry.get()
-#    reserve_price = auction_reserve_price_entry.get()
+    """Creates a new auction listing in the database."""
+    seller_id = item_seller_id
+    title = item_name
+    description = item_desc
+    start_time = item_start_time
+    end_time = item_end_time
+    reserve_price = item_reserve_price
 
     # Insert auction data into the Auctions table
-#    conn = sqlite3.connect("auction_website.db")
-#    cursor = conn.cursor()
-#    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
-#                   (1, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
-#    conn.commit()
-#    conn.close()
+    conn = sqlite3.connect("auction_website.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Auctions (seller_id, title, description, start_time, end_time, reserve_price) VALUES (?, ?, ?, ?, ?, ?)",
+                   (seller_id, title, description, start_time, end_time, reserve_price))  # Replace '1' with the actual seller's user_id
+    conn.commit()
+    conn.close()
+
+def get_most_recent_auction_id():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to retrieve the most recent auction_id
+        cursor.execute("SELECT auction_id FROM Auctions ORDER BY auction_id DESC LIMIT 1")
+        most_recent_auction_id = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        if most_recent_auction_id:
+            return most_recent_auction_id[0]  # Extract the auction_id from the tuple
+        else:
+            return None  # No entries in the table
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
+    
+def get_most_recent_auction():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to retrieve the most recent entry in the "Auctions" table
+        cursor.execute("SELECT * FROM Auctions ORDER BY auction_id DESC LIMIT 1")
+        most_recent_auction = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        return most_recent_auction
 
 
-#------------------------------------
-#Temporary code for filler data usage
-#------------------------------------
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
+    
+def find_auction_by_id(auction_id):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute a SQL query to retrieve the row with the specified auction_id
+        cursor.execute("SELECT * FROM Auctions WHERE auction_id = ?", (auction_id,))
+        result = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        return result  # Returns the row as a tuple
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
+    
+def update_reserve_price(auction_id, new_reserve_price):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Execute an SQL query to update the reserve_price for the specified auction_id
+        cursor.execute("UPDATE Auctions SET reserve_price = ? WHERE auction_id = ?", (new_reserve_price, auction_id))
+
+        # Commit the changes and close the database connection
+        conn.commit()
+        conn.close()
+
+        return True  # Success
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return False  # Failure
+    
+def get_unexpired_auctions():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Get the current date and time
+        current_datetime = datetime.datetime.now()
+
+        # Execute a SQL query to retrieve unexpired auctions
+        cursor.execute("SELECT auction_id, seller_id, title, description, end_time, reserve_price FROM Auctions WHERE end_time > ?", (current_datetime,))
+        unexpired_auctions = cursor.fetchall()
+        # Close the database connection
+        conn.close()
+
+        # Convert the fetched data to a list of dictionaries
+        auction_data = []
+        for row in unexpired_auctions:
+            auction_id, seller_id, title, description, end_time, reserve_price = row
+            seller_name = get_username_by_user_id(seller_id)
+            auction_data.append({
+                'auction_id': auction_id,
+                'seller_name': seller_name,
+                'title': title,
+                'description': description,
+                'end_time': end_time,
+                'reserve_price': reserve_price
+            })
+
+        return auction_data
+
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return None
