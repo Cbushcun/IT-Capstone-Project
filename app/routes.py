@@ -23,7 +23,10 @@ user_bids_list = [
 @app.route('/')
 def index():
     current_user = session.get('username')
-    if current_user is None:   
+    user_id = session.get('user_id')
+    if not check_and_delete_expired_session(user_id):
+        if current_user:
+            session.pop   
         return render_template('pages/index.html', active_page='Home') 
     else:
         return render_template('pages/index.html', active_page='Home', current_user=current_user)
@@ -31,6 +34,7 @@ def index():
 @app.route('/auction_page')
 def auction_page():
     current_user = session.get('username')
+    user_id = session.get('user_id')
 
     # Pagination settings
     per_page = 25  # Number of listings per page
@@ -47,7 +51,7 @@ def auction_page():
     # Calculate the total number of pages
     total_pages = (len(available_auctions) + per_page - 1) // per_page
 
-    if current_user is None:
+    if not check_and_delete_expired_session(user_id):
         return render_template('pages/auction_page.html',active_page='Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     else :
         return render_template('pages/auction_page.html', active_page='Auctions', current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
@@ -56,6 +60,7 @@ def auction_page():
 @app.route('/item/<int:auction_id>', methods=['GET', 'POST'])
 def item_page(auction_id):
     current_user = session.get('username')
+    user_id = session.get('user_id')
 
     # Find the relevant auction in the sample data based on auction_id
     item = find_auction_by_id(auction_id)
@@ -80,7 +85,7 @@ def item_page(auction_id):
         bid_finished = has_bid_ended(item)
         print("Bid finished: ", bid_finished) 
 
-        if current_user is None:
+        if not check_and_delete_expired_session(user_id):
             return render_template('pages/item_page.html', active_page='Listing', item=item, seller=seller_name)
         else:
             return render_template('pages/item_page.html', active_page='Listing', current_user=current_user, item=find_auction_by_id(auction_id), bid_finished=bid_finished, seller=seller_name)
@@ -91,6 +96,7 @@ def item_page(auction_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    user_id = session.get('user_id')
     message = None
     print("DEBUG: Message initialized to None, should render login.html") #For Debugging
     if request.method == 'POST':
@@ -115,6 +121,7 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    user_id = session.get('user_id')
     error = None # Initialize error as None
     print("DEBUG: error = None initialized") #For Debugging
     if request.method == 'POST': 
@@ -143,8 +150,9 @@ def register():
 @app.route('/about_us')
 def about():
     current_user = session.get('username')
+    user_id = session.get('user_id')
 
-    if current_user is None:
+    if not check_and_delete_expired_session(user_id):
         return render_template('about_us.html', active_page='About Us')
     else :
         return render_template('about_us.html', active_page='About Us', current_user=current_user)
@@ -153,7 +161,8 @@ def about():
 @app.route('/contact_us')
 def contact():
     current_user = session.get('username')
-    if current_user is None:      
+    user_id = session.get('user_id')
+    if not check_and_delete_expired_session(user_id):      
         return render_template('contact_us.html', active_page='Contact Us') 
     else:
         return render_template('contact_us.html', active_page='Contact Us', current_user=current_user)
@@ -161,7 +170,8 @@ def contact():
 @app.route('/payment_cancel')
 def payment_cancel():
     current_user = session.get('username')
-    if current_user is None:   
+    user_id = session.get('user_id')
+    if not check_and_delete_expired_session(user_id):   
         return render_template('payment_cancel.html', active_page='Home') 
     else:
         return render_template('payment_cancel.html', active_page='Home', current_user=current_user)
@@ -169,7 +179,8 @@ def payment_cancel():
 @app.route('/payment_success')
 def payment_success():
     current_user = session.get('username')
-    if current_user is None:   
+    user_id = session.get('user_id')
+    if not check_and_delete_expired_session(user_id):   
         return render_template('payment_success.html', active_page='Home') 
     else:
         return render_template('payment_success.html', active_page='Home', current_user=current_user)
@@ -207,11 +218,11 @@ def create_checkout_session():
 def user_profile():
     user_id = session.get('user_id')
     user_data = fetch_user_from_database(user_id)
-    current_user=get_current_user()
+    current_user=session.get('username')
     if user_data:
         User = namedtuple('User', ['user_id', 'username', 'email', 'password', 'first_name', 'last_name', 'address', 'phone_number'])
         user = User(*user_data)
-        if current_user is None:      
+        if not check_and_delete_expired_session(user_id):      
             return render_template('user_pages/user_profile.html', active_page='Profile')
         else :
             return render_template('user_pages/user_profile.html', active_page='Profile', current_user=current_user, user=user)
@@ -223,7 +234,7 @@ def user_profile():
 @app.route('/create_auction', methods=['GET', 'POST'])
 def create_auction():
     user_id = session.get('user_id')
-    current_user=get_current_user()
+    current_user=session.get('username')
 
     if request.method == 'POST':
         print("post method called") #for debugging
@@ -243,7 +254,7 @@ def create_auction():
         # You can optionally redirect to a page showing the newly created auction
         return redirect(url_for('item_page', auction_id=get_most_recent_auction_id()))
     
-    if current_user is None:      
+    if not check_and_delete_expired_session(user_id):      
         return redirect(url_for('login'))
     else:
         return render_template('user_pages/create_auction.html', active_page='List an Item', current_user=current_user)
@@ -251,6 +262,7 @@ def create_auction():
 @app.route('/user_bids_page')
 def user_bids_page():
     current_user = session.get('username')
+    user_id = session.get('user_id')
 
     # Pagination settings
     per_page = 25  # Number of listings per page
@@ -267,7 +279,7 @@ def user_bids_page():
     # Calculate the total number of pages
     total_pages = (len(user_bids_list) + per_page - 1) // per_page
 
-    if current_user is None: 
+    if not check_and_delete_expired_session(user_id): 
         return redirect(url_for('login')) 
     else:
         return render_template('user_pages/user_bids.html', active_page='Your Bids', current_user=current_user, bids=paginated_bids, total_pages=total_pages, current_page=page)

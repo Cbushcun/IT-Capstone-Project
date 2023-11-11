@@ -47,7 +47,9 @@ def log_data():
     if current_user:
         logger.error(f"User: " + get_current_user() + " IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
     else:
-        logger.error(f"IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+        ip = request.remote_addr
+        route = request.path
+        logger.error(f"IP: {ip} - Internal Server Error - Route: {route}")
     pass
 
 def load_or_create_secret_key():
@@ -112,6 +114,7 @@ def has_bid_ended(item):
     end_time = datetime.datetime.strptime(item[5], '%Y-%m-%d').date()
     return end_time < current_date
 
+
 #----------------------------------
 #Functions for database informaiton
 #----------------------------------
@@ -165,15 +168,15 @@ def register_user():
         
         # Generate a random salt and hash the password
         salt = generate_salt()
-        print('Salt generated', salt) #Debugging
+        #print('Salt generated', salt) #Debugging
         hashed_password = salt + hash_password(password, salt)
-        print('hashed password', hashed_password) #Debugging
+        #print('hashed password', hashed_password) #Debugging
 
         # Insert user data into the Users table
         cursor.execute("INSERT INTO Users (username, email, password, first_name, last_name, address, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?)",
                        (username, email, hashed_password, first_name, last_name, address, phone_number))
            
-        print('hashed_password stored') #Debugging
+        #print('hashed_password stored') #Debugging
 
         conn.commit()
         conn.close()
@@ -184,7 +187,7 @@ def login_user():
 
     email = request.form['email']
     password = request.form['password']
-    print("DEBUG: Password and email stored for comparison") #For Debugging
+    #print("DEBUG: Password and email stored for comparison") #For Debugging
     
     # Check if the email and password match a user in the Users table
     conn = sqlite3.connect("auction_website.db")
@@ -192,18 +195,18 @@ def login_user():
     cursor.execute("SELECT user_id, password FROM Users WHERE email = ?", (email,))
     user_data = cursor.fetchone()
     conn.close()
-    print("DEBUG: User Data Extracted") #For Debugging
+    #print("DEBUG: User Data Extracted") #For Debugging
     
     if user_data:
         user_id, hashed_password = user_data
-        print("DEBUG: User Data accessed", user_id, hashed_password) #For Debugging
+        #print("DEBUG: User Data accessed", user_id, hashed_password) #For Debugging
         salt = hashed_password[:32]  # Extract the salt from the hashed password
-        print("DEBUG: Salt Extracted", salt) #For Debugging
+        #print("DEBUG: Salt Extracted", salt) #For Debugging
         hashed_password_input = hash_password(password, salt)
-        print("DEBUG: Input password hashed with salt from stored password", hashed_password_input) #For Debugging
+        #print("DEBUG: Input password hashed with salt from stored password", hashed_password_input) #For Debugging
         
         if hashed_password == salt + hashed_password_input:
-            print("DEBUG: Hashed password == salt + hashed password") #For Debugging
+            #print("DEBUG: Hashed password == salt + hashed password") #For Debugging
             # Passwords match; create a flask session and store it in the Sessions table
             # User = namedtuple('User', [[0]'user_id',[1]'username',[2]'email',[3]'password',[4]'first_name',[5]'last_name',[6]'address',[7]'phone_number'])
             user = fetch_user_from_database(user_id)
@@ -235,17 +238,17 @@ def login_user():
                     # Close the database connection
                     conn.close()
                     
-                print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging        
+                #print("DEBUG: Passwords match, session created and stored, returning 'None', should redirect to index") #For Debugging        
 
             session['session_id'] = session_id
 
-            print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
+            #print("DEBUG: Flask session created ", session.get('user_id'), session.get('session_id'), session.get('username'), session.get('first_name'), session.get('last_name')) #For Debugging
 
             # Redirect to the main application interface
             return None
         
     error = "Invalid email or password"
-    print("DEBUG: Error, returning:", error) #For Debugging
+    #print("DEBUG: Error, returning:", error) #For Debugging
     return error
 
 def check_and_delete_expired_session(user_id):
@@ -268,11 +271,11 @@ def check_and_delete_expired_session(user_id):
                 # Session is expired, delete it
                 cursor.execute("DELETE FROM Sessions WHERE user_id = ? AND expiration < ?", (user_id, current_datetime))
                 conn.commit()
-                print("Expired session deleted") #FOR DEBUGGING
+                #print("Expired session deleted") #FOR DEBUGGING
             else:
                 # Session is valid
                 conn.close()
-                print("Valid session found")
+                #print("Valid session found")
                 return True
 
         # Close the database connection
@@ -281,56 +284,56 @@ def check_and_delete_expired_session(user_id):
         return False  # No valid session found
 
     except sqlite3.Error as e:
-        print("SQLite error:", e)
+        #print("SQLite error:", e)
         return False  # Failure
     
 def logout_user():
     """Logs out a user, destroys the session, and removes it from the database."""
     
-    print("DEBUG: logout_user() called") #For Debugging
+    #print("DEBUG: logout_user() called") #For Debugging
     conn = None  # Initialize conn to None
-    print("DEBUG: conn initialized to None") #For Debugging
+    #print("DEBUG: conn initialized to None") #For Debugging
     try:
         # Extract session_id from the current session
         session_id = session.get('session_id') # previous code that was here: str(session['session_id']) if 'session_id' in session else None
         user_id = session.get('user_id') # previous code that was here: str(session['user_id']) if 'user_id' in session else None
-        print("DEBUG: session_id and user_id extracted from session") #For Debugging
+        #print("DEBUG: session_id and user_id extracted from session") #For Debugging
         
         # Validate session_id and user_id exist
         if not session_id or not user_id:
-            print("DEBUG: No session_id or user_id") #For Debugging
+            #print("DEBUG: No session_id or user_id") #For Debugging
             raise ValueError("Invalid session data")
 
         # Connect to the database
         conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
-        print("DEBUG: Connected to database file") #For Debugging
+        #print("DEBUG: Connected to database file") #For Debugging
 
         # Delete session data from Sessions table in the database
         cursor.execute("DELETE FROM Sessions WHERE session_id = ? AND user_id = ?", (session_id, user_id))
         conn.commit()
-        print("DEBUG: Deleted session from Sessions table expected") #For Debugging
+        #print("DEBUG: Deleted session from Sessions table expected") #For Debugging
 
         # Clear the user_id and any other data from the Flask session
         session.clear()
-        print("DEBUG: Session cleared from Flask session") #For Debugging
+        #print("DEBUG: Session cleared from Flask session") #For Debugging
 
         # Optionally, log the user's logout activity
         #log_data()  # Assuming log_data function logs user activities including logout
-        # print("DEBUG: Data Logged") #For Debugging
+        # #print("DEBUG: Data Logged") #For Debugging
 
         # Redirect to the login page or the home page after logout
-        print("DEBUG: Redirecting to login") #For Debugging
+        #print("DEBUG: Redirecting to login") #For Debugging
         return redirect(url_for('login'))  # Replace 'login' with the endpoint for your login page
 
     except ValueError as ve:
         # Handle invalid session data error
-        print(f"Error: {ve}")
+        #print(f"Error: {ve}")
         return redirect(url_for('login'))  # Redirect to login on error
 
     except sqlite3.Error as e:
         # Handle database error
-        print(f"Database error: {e}")
+        #print(f"Database error: {e}")
         return redirect(url_for('login'))  # Redirect to login on error
 
     finally:
@@ -357,7 +360,7 @@ def get_username_by_user_id(user_id):
 
     except sqlite3.Error as e:
         # Handle any potential database errors here
-        print(f"Database error: {e}")
+        ##print(f"Database error: {e}")
         return None
 
     finally:
@@ -367,11 +370,6 @@ def get_username_by_user_id(user_id):
     # Example usage:
     #user_id = 1  # Replace with the actual user_id of the current user
     #username = get_username_by_user_id(user_id)
-
-    if username is not None:
-        print(f"Username for user with user_id {user_id}: {username}")
-    else:
-        print("User not found or database error.")
 
 def get_current_user():
     if 'user_id' in session:
@@ -438,7 +436,7 @@ def get_most_recent_auction_id():
             return None  # No entries in the table
 
     except sqlite3.Error as e:
-        print("SQLite error:", e)
+        #print("SQLite error:", e)
         return None
     
 def get_most_recent_auction():
@@ -458,7 +456,7 @@ def get_most_recent_auction():
 
 
     except sqlite3.Error as e:
-        print("SQLite error:", e)
+        #print("SQLite error:", e)
         return None
     
 def find_auction_by_id(auction_id):
@@ -477,7 +475,7 @@ def find_auction_by_id(auction_id):
         return result  # Returns the row as a tuple
 
     except sqlite3.Error as e:
-        print("SQLite error:", e)
+        #print("SQLite error:", e)
         return None
     
 def update_reserve_price(auction_id, new_reserve_price):
@@ -496,9 +494,9 @@ def update_reserve_price(auction_id, new_reserve_price):
         return True  # Success
 
     except sqlite3.Error as e:
-        print("SQLite error:", e)
+        #print("SQLite error:", e)
         return False  # Failure
-    
+
 def get_unexpired_auctions():
     try:
         # Connect to the SQLite database
@@ -531,5 +529,5 @@ def get_unexpired_auctions():
         return auction_data
 
     except sqlite3.Error as e:
-        print("SQLite error:", e)
+        #print("SQLite error:", e)
         return None
