@@ -1,0 +1,86 @@
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'Users'
+    user_id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    first_name = Column(String)
+    last_name = Column(String)
+    address = Column(String)
+    phone_number = Column(String)
+
+class Role(Base):
+    __tablename__ = 'Roles'
+    role_id = Column(Integer, primary_key=True)
+    role_name = Column(String, unique=True, nullable=False)
+
+class UserRole(Base):
+    __tablename__ = 'UserRoles'
+    user_id = Column(Integer, ForeignKey('Users.user_id'), primary_key=True)
+    role_id = Column(Integer, ForeignKey('Roles.role_id'), primary_key=True)
+
+class Auction(Base):
+    __tablename__ = 'Auctions'
+    auction_id = Column(Integer, primary_key=True)
+    seller_id = Column(Integer, ForeignKey('Users.user_id'))
+    title = Column(String, nullable=False)
+    description = Column(String)
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=False)
+    reserve_price = Column(Float)
+
+class Bid(Base):
+    __tablename__ = 'Bids'
+    bid_id = Column(Integer, primary_key=True)
+    auction_id = Column(Integer, ForeignKey('Auctions.auction_id'))
+    user_id = Column(Integer, ForeignKey('Users.user_id'))
+    bid_amount = Column(Float, nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    status = Column(String)
+
+class Category(Base):
+    __tablename__ = 'Categories'
+    category_id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+
+class Tag(Base):
+    __tablename__ = 'Tags'
+    tag_id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+
+class AuctionCategory(Base):
+    __tablename__ = 'AuctionCategories'
+    auction_id = Column(Integer, ForeignKey('Auctions.auction_id'), primary_key=True)
+    category_id = Column(Integer, ForeignKey('Categories.category_id'), primary_key=True)
+
+class AuctionTag(Base):
+    __tablename__ = 'AuctionTags'
+    auction_id = Column(Integer, ForeignKey('Auctions.auction_id'), primary_key=True)
+    tag_id = Column(Integer, ForeignKey('Tags.tag_id'), primary_key=True)
+
+class Session(Base):
+    __tablename__ = 'Sessions'
+    session_id = Column(String, primary_key=True)
+    user_id = Column(Integer, ForeignKey('Users.user_id'))
+    expiration = Column(DateTime, nullable=False)
+
+# Create the database engine
+engine = create_engine('sqlite:///auction_website.db', echo=True)
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Insert admin role and user data
+admin_role = Role(role_name='Admin')
+session.add(admin_role)
+session.commit()
+
+admin_user = User(username='admin', email='admin@example.com', password='admin', first_name='Admin', last_name='Admin', address='Admin Address', phone_number='1234567890')
+session.add(admin_user)
+session.commit()
