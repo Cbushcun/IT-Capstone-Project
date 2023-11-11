@@ -51,12 +51,12 @@ def log_data():
     pass
 
 def load_or_create_secret_key():
-    clear_screen();
+    clear_screen()
     try:
         with open(SECRET_KEY_FILE, 'r') as file:
             secret_key = file.read()
             print(f"Secret key: {secret_key}")
-            file.close();
+            file.close()
             clear_screen_and_get_input()
             if not secret_key:
                 raise FileNotFoundError
