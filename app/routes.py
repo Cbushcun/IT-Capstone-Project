@@ -83,7 +83,7 @@ def item_page(auction_id):
     if item is not None:
         # Pass the auctions list to the item_page route
         bid_finished = has_bid_ended(item)
-        print("Bid finished: ", bid_finished) 
+        ##print("Bid finished: ", bid_finished) 
 
         if not check_and_delete_expired_session(user_id):
             return render_template('pages/item_page.html', active_page='Listing', item=item, seller=seller_name)
@@ -98,17 +98,17 @@ def item_page(auction_id):
 def login():
     user_id = session.get('user_id')
     message = None
-    print("DEBUG: Message initialized to None, should render login.html") #For Debugging
+    #print("DEBUG: Message initialized to None, should render login.html") #For Debugging
     if request.method == 'POST':
-        print("DEBUG: Post method called") #For Debugging
+        #print("DEBUG: Post method called") #For Debugging
         result = login_user()
-        print("DEBUG: login_user() called and stored to 'result' variable ") #For Debugging
+        #print("DEBUG: login_user() called and stored to 'result' variable ") #For Debugging
         
         if result is None: 
-            print("DEBUG: Result is 'None', redirection to index") #For Debugging
+            #print("DEBUG: Result is 'None', redirection to index") #For Debugging
             return redirect(url_for('index'))          
         else:
-            print("DEBUG: Result is other than None, flashing error result from Login_user()") #For Debugging
+            #print("DEBUG: Result is other than None, flashing error result from Login_user()") #For Debugging
             flash(result, "error")
             
     # Clear any existing flashed messages
@@ -123,27 +123,27 @@ def logout():
 def register():
     user_id = session.get('user_id')
     error = None # Initialize error as None
-    print("DEBUG: error = None initialized") #For Debugging
+    #print("DEBUG: error = None initialized") #For Debugging
     if request.method == 'POST': 
-        print("DEBUG: POST method called") #For Debugging
+        #print("DEBUG: POST method called") #For Debugging
         password = request.form.get('password')
-        print("DEBUG: Password stored") #For Debugging
+        #print("DEBUG: Password stored") #For Debugging
         verify_password = request.form.get('verify_password')
-        print("DEBUG: Confirmation password stored") #For Debugging
+        #print("DEBUG: Confirmation password stored") #For Debugging
         
         #Confirm that passwords match
         if password != verify_password:
             flash("Passwords do no t match", "error")
-            print("DEBUG: Password mismatch") #For Debugging
+            #print("DEBUG: Password mismatch") #For Debugging
         else:
             error = register_user()
-            print("DEBUG: Passwords match, storing user") #For Debugging
+            #print("DEBUG: Passwords match, storing user") #For Debugging
 
             if error:
                 flash(error, "error")
             else:             
                 flash('Registration Success!', 'success')
-                print("DEBUG: Registration success flashed") #For Debugging      
+                #print("DEBUG: Registration success flashed") #For Debugging      
                 return redirect(url_for('login'))
     return render_template('pages/register.html', active_page='Register', error=error)
 
@@ -237,7 +237,7 @@ def create_auction():
     current_user=session.get('username')
 
     if request.method == 'POST':
-        print("post method called") #for debugging
+        #print("post method called") #for debugging
 
         # Get form data from the request
         title = request.form['title']
@@ -245,11 +245,11 @@ def create_auction():
         end_time = request.form['end_time']
         starting_bid = float(request.form['reserve_price'])  # Convert to float
         start_time = datetime.datetime.now().date()
-        print("data retrieved") #for debugging
+        #print("data retrieved") #for debugging
 
         create_auction_in_database( user_id, title, description, start_time, end_time, starting_bid)
         # Create a new auction object
-        print("auction row created") #for debugging
+        #print("auction row created") #for debugging
         
         # You can optionally redirect to a page showing the newly created auction
         return redirect(url_for('item_page', auction_id=get_most_recent_auction_id()))
