@@ -1,4 +1,13 @@
 # IT-Capstone-Project
+--------To run app without compiler--------
+Using cx_Freeze the program was compiled so that it can be ran on click
+
+To compile the app for packaging ensure that you are in the IT-Capstone-Project directory or whatever the name of the directory is that contains the files then run 'python pkg.py build' in the terminal and it will compile the program into the 'build' folder. from there, do what you need.
+
+For this repository, it was compressed into a zip file for upload.
+
+To run the app from the repository, just extract release.zip and navigate to run.exe and the server should create the needed files and start
+
 -----------Intro-----------
 These files are all that is needed to begin testing and continue development of the Capstone Project as we proceed. 
 
@@ -31,3 +40,4 @@ config.py - This is the initial setup before the server goes live. Once run.py i
 \_\_init__.py - This is the initialization code that creates our Flask app and will import anythink into the app as needed
 
 run.py - This is the file that you will execute in the terminal to run the app. 'use_reloader=False' ensures that the page will not be reloaded as code is changed. This setting was placed due to issues in the app restarting and then freezing potentially due to changing variables in code
+
