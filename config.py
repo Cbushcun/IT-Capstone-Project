@@ -13,6 +13,7 @@ from datetime import timedelta
 import re
 import stripe
 
+admin_password = 'Password123' #Change this to alter admin and test seller password
 session_length_hours = 1
 
 stripe.api_key = 'sk_test_51O5C7EAGed7Nbg9Wt84xkDMdLyw477BQ3RcE7yq8JqKlT1CfgWcbsCjQTB8OKDQu0zw9l0mwOpjqXzxat4Orc8xV006OlHB08N'
@@ -112,7 +113,7 @@ def find_active_auctions(bid_list):
 def has_bid_ended(item):
     current_date = datetime.datetime.now().date()
     end_time = datetime.datetime.strptime(item[5], '%Y-%m-%d').date()
-    return end_time < current_date
+    return current_date > end_time
 
 
 #----------------------------------
@@ -129,26 +130,79 @@ def generate_salt():
     """Generates a random salt for password hashing."""
     return uuid.uuid4().hex
 
-def register_user():
+def register_user(admin=False, seller=False):
     """Registers a new user in the database."""
     error = None
-    if request.method == 'POST':
-        email_regex = r'^[\w\.-]+@[\w\.-]+(\.\w+)+$'
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        first_name = request.form.get('first_name')  # .get() allows for the value to be None if it's not provided
-        last_name = request.form.get('last_name')
-        address = request.form.get('address')
-        phone_number = request.form.get('phone_number')
-
+    if admin:
+        name = 'admin'
+        email = 'admin@gmail.com'
+        fname = 'admin'
+        lname = 'istrator'
+        address = '123 admin street'
+        phone_no = '000-000-0000'
         # Open a connection to your database
         conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
         
-        if not re.match(email_regex, email):
-            error = "Invalid email address" #Does not validate if it is a live email, only verifies formatting
-            return error
+        # Generate a random salt and hash the password
+        salt = generate_salt()
+        #print('Salt generated', salt) #Debugging
+        hashed_password = salt + hash_password(admin_password, salt)
+        #print('hashed password', hashed_password) #Debugging
+
+        # Insert user data into the Users table
+        cursor.execute("INSERT INTO Users (username, email, password, first_name, last_name, address, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                       (name, email, hashed_password, fname, lname, address, phone_no))
+           
+        #print('hashed_password stored') #Debugging
+
+        conn.commit()
+        conn.close()
+
+    elif seller:
+        name = 'test_seller'
+        email = 'testseller@gmail.com'
+        fname = 'test'
+        lname = 'seller'
+        address = '123 seller street'
+        phone_no = '111-111-1111'
+        # Open a connection to your database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+        
+        # Generate a random salt and hash the password
+        salt = generate_salt()
+        #print('Salt generated', salt) #Debugging
+        hashed_password = salt + hash_password(admin_password, salt)
+        #print('hashed password', hashed_password) #Debugging
+
+        # Insert user data into the Users table
+        cursor.execute("INSERT INTO Users (username, email, password, first_name, last_name, address, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                       (name, email, hashed_password, fname, lname, address, phone_no))
+           
+        #print('hashed_password stored') #Debugging
+
+        conn.commit()
+        conn.close()
+
+    else:
+        if request.method == 'POST':
+            email_regex = r'^[\w\.-]+@[\w\.-]+(\.\w+)+$'
+            username = request.form['username']
+            email = request.form['email']
+            password = request.form['password']
+            first_name = request.form.get('first_name')  # .get() allows for the value to be None if it's not provided
+            last_name = request.form.get('last_name')
+            address = request.form.get('address')
+            phone_number = request.form.get('phone_number')
+
+            # Open a connection to your database
+            conn = sqlite3.connect("auction_website.db")
+            cursor = conn.cursor()
+            
+            if not re.match(email_regex, email):
+                error = "Invalid email address" #Does not validate if it is a live email, only verifies formatting
+                return error
         
         # Check if username already exists (case-insensitive)
         cursor.execute("SELECT * FROM Users WHERE LOWER(username) = LOWER(?)", (username,))
@@ -479,22 +533,26 @@ def find_auction_by_id(auction_id):
         return None
     
 def update_reserve_price(auction_id, new_reserve_price):
+    print('update reserve price called')
     try:
         # Connect to the SQLite database
         conn = sqlite3.connect("auction_website.db")
         cursor = conn.cursor()
+        print('connected to db')
 
         # Execute an SQL query to update the reserve_price for the specified auction_id
         cursor.execute("UPDATE Auctions SET reserve_price = ? WHERE auction_id = ?", (new_reserve_price, auction_id))
-
+        print('updated')
         # Commit the changes and close the database connection
-        conn.commit()
-        conn.close()
 
+        conn.commit()
+        print('conn commited')
+        conn.close()
+        print('conn closed')
         return True  # Success
 
     except sqlite3.Error as e:
-        #print("SQLite error:", e)
+        print("SQLite error:", e)
         return False  # Failure
 
 def get_unexpired_auctions():
@@ -527,7 +585,42 @@ def get_unexpired_auctions():
             })
 
         return auction_data
+    
+    except sqlite3.Error as e:
+        #print("SQLite error:", e)
+        return False  # Failure
 
+def get_expired_auctions():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect("auction_website.db")
+        cursor = conn.cursor()
+
+        # Get the current date and time
+        current_datetime = datetime.datetime.now()
+
+        # Execute a SQL query to retrieve unexpired auctions
+        cursor.execute("SELECT auction_id, seller_id, title, description, end_time, reserve_price FROM Auctions WHERE end_time < ?", (current_datetime,))
+        unexpired_auctions = cursor.fetchall()
+        # Close the database connection
+        conn.close()
+
+        # Convert the fetched data to a list of dictionaries
+        auction_data = []
+        for row in unexpired_auctions:
+            auction_id, seller_id, title, description, end_time, reserve_price = row
+            seller_name = get_username_by_user_id(seller_id)
+            auction_data.append({
+                'auction_id': auction_id,
+                'seller_name': seller_name,
+                'title': title,
+                'description': description,
+                'end_time': end_time,
+                'reserve_price': reserve_price
+            })
+
+        return auction_data
+    
     except sqlite3.Error as e:
         #print("SQLite error:", e)
         return None

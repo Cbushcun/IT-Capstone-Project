@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <title>Auction Page</title>
+    <style>
+        .form-container {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <div class="form-container">
+        <h2>Expired Auctions</h2>
+        {% for auction in auctions %}
+        <a href="{{ url_for('item_page', auction_id=auction.auction_id) }}" style="text-decoration: none; color: inherit;">
+            <div class="auction-listing">
+                <label>Seller: {{ auction.seller_name }}</label>
+                <p>Item Title: {{ auction.title }}</p>
+                <p>Auction Ends: {{ auction.end_time }}</p>
+                <p>Current Bid: {{ auction.reserve_price }}</p>
+            </div>
+        </a>
+        {% endfor %}
+        <ul class="pagination">
+            {% for page_num in range(1, total_pages + 1) %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('auction_page', page=page_num) }}">{{ page_num }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% include 'footer.html' %}
+</body>
+
+</html>

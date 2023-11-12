@@ -56,7 +56,7 @@ input[type="text"], input[type="password"], input[type="email"], input[type="dat
     margin-top: 5px;
 }
 
-input[type="submit"] {
+input[type="submit"], #payButton {
     background-color: #e74c3c;
     color: #ecf0f1;
     padding: 10px 15px;
@@ -64,6 +64,7 @@ input[type="submit"] {
     border-radius: 4px;
     cursor: pointer;
 }
+
 
 input[type="submit"]:hover {
     background-color: #c0392b;

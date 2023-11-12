@@ -55,6 +55,31 @@ def auction_page():
         return render_template('pages/auction_page.html',active_page='Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     else :
         return render_template('pages/auction_page.html', active_page='Auctions', current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
+
+@app.route('/expired_auctions')
+def expired_auctions():
+    current_user = session.get('username')
+    user_id = session.get('user_id')
+
+    # Pagination settings
+    per_page = 25  # Number of listings per page
+    page = request.args.get('page', type=int, default=1)
+
+    # Calculate the start and end indices for the listings to display
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    available_auctions = get_expired_auctions()
+    # Slice the auctions list to display only the relevant listings
+    paginated_auctions = available_auctions[start:end]
+
+    # Calculate the total number of pages
+    total_pages = (len(available_auctions) + per_page - 1) // per_page
+
+    if not check_and_delete_expired_session(user_id):
+        return render_template('pages/expired_auctions.html',active_page='Expired Auctions',auctions=paginated_auctions,total_pages=total_pages,current_page=page)
+    else :
+        return render_template('pages/expired_auctions.html', active_page='Expired Auctions', current_user=current_user, auctions=paginated_auctions,total_pages=total_pages,current_page=page)
     
 # Route for viewing items in a specific auction
 @app.route('/item/<int:auction_id>', methods=['GET', 'POST'])
@@ -121,7 +146,6 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    user_id = session.get('user_id')
     error = None # Initialize error as None
     #print("DEBUG: error = None initialized") #For Debugging
     if request.method == 'POST': 

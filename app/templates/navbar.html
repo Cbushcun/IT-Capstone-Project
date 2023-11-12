@@ -23,13 +23,16 @@
                 </button>
                 <div class="dropdown-content dropdown-login-content">
                     <a href="{{ url_for('user_profile') }}">Profile</a>
-                    <a href="{{url_for('user_bids_page') }}">Bidding & Purchases</a>
+                    <a href="{{ url_for('user_bids_page') }}">Bidding & Purchases</a>
                     <a href="{{ url_for('create_auction') }}">Selling & Listing</a>
+                    {%if current_user == 'admin' %}
+                    <a href="{{ url_for('expired_auctions') }}">Expired Listings (for testing)</a>
+                    {% endif %}
                     <a href="#">Help & Support</a>
                     <a href="#">Settings</a>
                     <a href="{{ url_for('logout') }}">Sign Out</a>
                 </div>
-
+                
             </div>
             {% else %}
             <a href="{{ url_for('login') }}">Login</a>

@@ -79,7 +79,8 @@
                     <label for="bid-amount">Enter Bid Amount: $</label>
                     <input name="bid-amount" type="text" id="bid-amount" class="bid-input" placeholder="0.00">
                     <button type="submit" class="bid-link">Place a Bid</button>
-                </form>       
+                </form>     
+                  
             </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -87,9 +88,12 @@
                         <p class="alert">{{ message }}</p>
                     {% endfor %}
                 {% endif %}
-            {% endwith %}  
+            {% endwith %} 
+        {% elif current_user != seller and bid_finished %}
+            {% include 'payment_link.html' %} 
         {% endif %}
-        {% include 'payment_link.html' %}
+
+        
     </div>
     {% include 'footer.html' %}
 </body>
