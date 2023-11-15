@@ -1,7 +1,4 @@
 import sqlite3
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
 
 def setup_database():
     # Create and connect to the SQLite database

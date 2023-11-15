@@ -296,7 +296,7 @@ def user_bids_page():
     start = (page - 1) * per_page
     end = start + per_page
 
-    completed_bids = find_completed_auctions(user_bids_list)
+    completed_bids = get_expired_auctions()
     # Slice the user_bids_list to display only the relevant listings
     paginated_bids = completed_bids[start:end]
 
