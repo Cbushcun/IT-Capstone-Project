@@ -4,7 +4,7 @@ from jinja2 import TemplateNotFound
 from app import app
 from config import *
 
-address = "https://team3ailimits.azurewebsites.net" #to use in stripe route to handle payment success and cancel. Change when needed
+address = "http://127.0.0.1:8000" #to use in stripe route to handle payment success and cancel. Change when needed
 
 #--------------------------------------------------------------------
 #Sample data for testing purposes until complete database integration
