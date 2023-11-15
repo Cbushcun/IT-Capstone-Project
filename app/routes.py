@@ -228,8 +228,8 @@ def create_checkout_session():
             'quantity': 1,
         }],
         mode='payment',
-        success_url=address + "/payment_success",
-        cancel_url=address + "/payment_cancel"
+        success_url=url_for('payment_success'),
+        cancel_url=url_for('payment_cancel')
     )
 
     return jsonify({'sessionId': stripe_session.id})
