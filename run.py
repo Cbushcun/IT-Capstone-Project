@@ -5,7 +5,6 @@ import db_setup
 #Default admin login is admin@gmail.com & Password123
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
     try:
         db_setup.setup_database()
         try:
@@ -17,6 +16,6 @@ if __name__ == '__main__':
             print(' * admin user already created in database')
         finally:
             log_server_start_stop('start')
-            app.run(debug=True, use_reloader=False)
+            app.run(host='0.0.0.0', port=8000, debug=True, use_reloader=False)
     finally:
         log_server_start_stop('stop')
