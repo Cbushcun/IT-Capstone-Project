@@ -5,6 +5,7 @@ import db_setup
 #Default admin login is admin@gmail.com & Password123
 
 if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000)
     try:
         db_setup.setup_database()
         try:
