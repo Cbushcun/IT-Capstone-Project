@@ -70,10 +70,10 @@ def load_or_create_secret_key():
     return secret_key
 
 def clear_screen_and_get_input():
-    user_input = input("Do you want to generate a new secret key? (Y/N): ")
+    #user_input = input("Do you want to generate a new secret key? (Y/N): ")
     clear_screen()
-    if user_input.lower() == 'y':
-        generate_new_secret_key()
+    #if user_input.lower() == 'y':
+        #generate_new_secret_key()
     
 def generate_new_secret_key():
     os.remove(SECRET_KEY_FILE)
