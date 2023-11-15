@@ -58,17 +58,15 @@ def load_or_create_secret_key():
     try:
         with open(SECRET_KEY_FILE, 'r') as file:
             secret_key = file.read()
-            print(f"Secret key: {secret_key}")
+            #print(f"Secret key: {secret_key}")
             file.close()
-            clear_screen_and_get_input()
             if not secret_key:
                 raise FileNotFoundError
     except FileNotFoundError:
         secret_key = secrets.token_hex(16)
         with open(SECRET_KEY_FILE, 'w') as file:
             file.write(secret_key)
-        print(f"New secret key generated: {secret_key}")
-        clear_screen_and_get_input()
+        #print(f"New secret key generated: {secret_key}")
     return secret_key
 
 def clear_screen_and_get_input():
