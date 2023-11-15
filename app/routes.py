@@ -4,7 +4,7 @@ from jinja2 import TemplateNotFound
 from app import app
 from config import *
 
-address = "http://127.0.0.1:5000" #to use in stripe route to handle payment success and cancel. Change when needed
+address = "https://team3ailimits.azurewebsites.net" #to use in stripe route to handle payment success and cancel. Change when needed
 
 #--------------------------------------------------------------------
 #Sample data for testing purposes until complete database integration
@@ -228,8 +228,8 @@ def create_checkout_session():
             'quantity': 1,
         }],
         mode='payment',
-        success_url=url_for('payment_success'),
-        cancel_url=url_for('payment_cancel')
+        success_url=address + '/payment_success',
+        cancel_url=address + '/payment_cancel'
     )
 
     return jsonify({'sessionId': stripe_session.id})

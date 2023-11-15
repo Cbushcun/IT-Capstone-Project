@@ -16,6 +16,6 @@ if __name__ == '__main__':
             print(' * admin user already created in database')
         finally:
             log_server_start_stop('start')
-            app.run(host='20.119.0.44', port=8000, debug=True, use_reloader=False)
+            app.run(host='0.0.0.0', port=8000, debug=True, use_reloader=False)
     finally:
         log_server_start_stop('stop')
