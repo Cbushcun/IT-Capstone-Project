@@ -1,4 +1,6 @@
-# IT-Capstone-Project
+# AI Limitations in Web Development Research Project (Completed and in a prototype state for IT Capstone Section W01 for fall 2023 under Donald Privitera.
+
+
 --------To run app without compiler--------
 Using cx_Freeze the program was compiled so that it can be ran on click
 
