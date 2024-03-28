@@ -1,31 +1,25 @@
 from collections import namedtuple
-import os # Import os module to use environment variables
-import secrets # Import secrets module to generate secure SECRET_KEY
-import platform  # Import the platform module to determine the OS
+import os, secrets, platform, logging, sqlite3, hashlib, uuid, datetime, re, stripe # Import os module to use environment variables
 from flask import redirect, url_for, request, render_template, session, jsonify
 from db_setup import *
-import logging
-import sqlite3
-import hashlib
-import uuid
-import datetime
 from datetime import timedelta
-import re
-import stripe
+from dotenv import load_dotenv
 
-admin_password = 'Password123' #Change this to alter admin and test seller password
-session_length_hours = 1
+#environment variable handing (generate SECRET_KEY and env loading)
+load_dotenv() #obtain .env values
+stripe.api_key = os.environ.get("STR_API") #connect stripe api
+admin_password = os.environ.get("ADMIN_PASS") #set admin password for initial db load
 
-stripe.api_key = 'sk_test_51O5C7EAGed7Nbg9Wt84xkDMdLyw477BQ3RcE7yq8JqKlT1CfgWcbsCjQTB8OKDQu0zw9l0mwOpjqXzxat4Orc8xV006OlHB08N'
+
+session_length_hours = 1 #user session expiry length
 
 # Logging setup
-SECRET_KEY_FILE = 'secret_key.txt'
 LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
-LOG_FILE = 'error_log.log'
+LOG_FILE = 'server.log'
 
 # Set up a file handler for error logs
 file_handler = logging.FileHandler(LOG_FILE)
-file_handler.setLevel(logging.ERROR)
+file_handler.setLevel(logging.WARNING)
 file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
 
 # Get the root logger and add the file handler to it
@@ -38,47 +32,35 @@ logger.addHandler(file_handler)
 
 def log_server_start_stop(action):
     if action == 'start':
-        logger.error('-----------Server Started-----------')
+        logger.warning(msg='-----------Server Started-----------')
     elif action == 'stop':
-        logger.error('-----------Server Stopped-----------')
+        logger.warning(msg='-----------Server Stopped-----------')
 
-# Log error data to error_log.log, edit function to log user login/logout without passing as "error"
+# Log error data to server.log, edit function to log user login/logout without passing as "error"
 def log_data(): 
     current_user = get_current_user()
     if current_user:
-        logger.error(f"User: " + get_current_user() + " IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
+        logger.info(f"User: " + get_current_user() + " IP: {request.remote_addr} - Internal Server Error - Route: {request.path}")
     else:
         ip = request.remote_addr
         route = request.path
-        logger.error(f"IP: {ip} - Internal Server Error - Route: {route}")
+        logger.info(f"IP: {ip} - Internal Server Error - Route: {route}")
     pass
 
-def load_or_create_secret_key():
-    clear_screen()
-    try:
-        with open(SECRET_KEY_FILE, 'r') as file:
-            secret_key = file.read()
-            #print(f"Secret key: {secret_key}")
-            file.close()
-            if not secret_key:
-                raise FileNotFoundError
-    except FileNotFoundError:
+def load_secret():
+    secret_key = os.environ.get("SECRET_KEY")
+    
+    if not secret_key:
         secret_key = secrets.token_hex(16)
-        with open(SECRET_KEY_FILE, 'w') as file:
-            file.write(secret_key)
-        #print(f"New secret key generated: {secret_key}")
-    return secret_key
+        
+        with open('.env', 'a') as f:
+            f.write(f"\nSECRET_KEY={secret_key}\n")
+    load_dotenv()
+    
+    
+def get_secret():
+    return os.environ.get("SECRET_KEY")
 
-def clear_screen_and_get_input():
-    #user_input = input("Do you want to generate a new secret key? (Y/N): ")
-    clear_screen()
-    #if user_input.lower() == 'y':
-        #generate_new_secret_key()
-    
-def generate_new_secret_key():
-    os.remove(SECRET_KEY_FILE)
-    load_or_create_secret_key()
-    
 def clear_screen():
     # Clear the console (platform-independent
     if platform.system() == 'Windows':

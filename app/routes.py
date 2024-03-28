@@ -257,6 +257,7 @@ def user_profile():
     
 @app.route('/create_auction', methods=['GET', 'POST'])
 def create_auction():
+    stripe_pk = os.environ.get("STR_PK")
     user_id = session.get('user_id')
     current_user=session.get('username')
 
@@ -276,7 +277,7 @@ def create_auction():
         #print("auction row created") #for debugging
         
         # You can optionally redirect to a page showing the newly created auction
-        return redirect(url_for('item_page', auction_id=get_most_recent_auction_id()))
+        return redirect(url_for('item_page', auction_id=get_most_recent_auction_id(), stripe_pk=stripe_pk))
     
     if not check_and_delete_expired_session(user_id):      
         return redirect(url_for('login'))
